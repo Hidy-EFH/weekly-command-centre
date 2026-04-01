@@ -1,0 +1,2103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EdFinHealth Weekly Command Centre</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy:#1E2761;
+  --teal:#028090;
+  --teal-light:#02C39A;
+  --gold:#C9892A;
+  --cream:#F8F4EE;
+  --bg:#F0F4F8;
+  --card:#FFFFFF;
+  --border:#E2E8F0;
+  --text:#1E293B;
+  --muted:#64748B;
+  --radius-card:16px;
+  --radius-sm:8px;
+}
+*, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+html { scroll-behavior:smooth; }
+body {
+  font-family:'DM Sans', sans-serif;
+  font-size:16px;
+  color:var(--text);
+  background:var(--bg);
+  min-height:100vh;
+}
+h1,h2,h3,h4 { font-family:'Playfair Display', serif; }
+
+/* APP HEADER */
+.app-header {
+  position:sticky;
+  top:0;
+  z-index:100;
+  background:var(--navy);
+  color:#fff;
+  padding:10px 20px 8px;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  box-shadow:0 2px 12px rgba(0,0,0,0.18);
+}
+.header-row1 { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+.header-row2 { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+.app-header h1 {
+  font-size:18px;
+  font-family:'Playfair Display', serif;
+  color:#fff;
+  white-space:nowrap;
+}
+.header-sub {
+  font-size:12px;
+  opacity:0.7;
+  font-family:'DM Sans',sans-serif;
+}
+.header-left { display:flex; flex-direction:column; gap:1px; }
+.header-right { display:flex; align-items:center; gap:6px; flex-wrap:nowrap; }
+.btn {
+  padding:7px 14px;
+  border-radius:var(--radius-sm);
+  border:none;
+  cursor:pointer;
+  font-size:13px;
+  font-family:'DM Sans',sans-serif;
+  font-weight:600;
+  transition:all 0.15s;
+  white-space:nowrap;
+}
+.btn-gold { background:var(--gold); color:#fff; }
+.btn-gold:hover { background:#b5781f; }
+.btn-teal { background:var(--teal); color:#fff; }
+.btn-teal:hover { background:#016f7b; }
+.btn-outline { background:transparent; color:#fff; border:1.5px solid rgba(255,255,255,0.4); }
+.btn-outline:hover { background:rgba(255,255,255,0.1); }
+.btn-sm { padding:5px 10px; font-size:12px; }
+.btn-danger { background:#EF4444; color:#fff; }
+.btn-danger:hover { background:#dc2626; }
+
+/* WEEK NAV */
+.week-nav { display:flex; align-items:center; gap:8px; }
+.week-nav .week-label { font-size:13px; font-weight:600; color:#fff; min-width:120px; text-align:center; }
+.week-arrow { background:rgba(255,255,255,0.15); border:none; color:#fff; cursor:pointer; border-radius:6px; padding:4px 9px; font-size:16px; line-height:1; }
+.week-arrow:hover { background:rgba(255,255,255,0.25); }
+
+/* TAB BAR */
+.tab-bar {
+  position:sticky;
+  z-index:90;
+  background:#fff;
+  border-bottom:2px solid var(--border);
+  display:flex;
+  gap:0;
+  overflow-x:auto;
+  scrollbar-width:none;
+  box-shadow:0 2px 8px rgba(0,0,0,0.06);
+}
+.tab-bar::-webkit-scrollbar { display:none; }
+.tab-btn {
+  padding:12px 16px;
+  border:none;
+  background:transparent;
+  cursor:pointer;
+  font-size:14px;
+  font-family:'DM Sans',sans-serif;
+  font-weight:500;
+  color:var(--muted);
+  white-space:nowrap;
+  border-bottom:3px solid transparent;
+  transition:all 0.15s;
+  flex-shrink:0;
+}
+.tab-btn:hover { color:var(--teal); background:#f8fafc; }
+.tab-btn.active { color:var(--teal); border-bottom-color:var(--teal); font-weight:700; }
+
+/* TAB CONTENT */
+.tab-content {
+  max-width:1200px;
+  margin:0 auto;
+  padding:20px;
+  min-height:60vh;
+}
+.tab-pane { display:none; }
+.tab-pane.active { display:block; }
+
+/* CARDS */
+.card {
+  background:var(--card);
+  border-radius:var(--radius-card);
+  padding:20px;
+  margin-bottom:16px;
+  box-shadow:0 1px 6px rgba(0,0,0,0.07);
+}
+.card-header {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:14px;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.card-header h3 {
+  font-size:15px;
+  font-family:'DM Sans',sans-serif;
+  font-weight:700;
+  color:var(--navy);
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+.section-toggle {
+  background:none;
+  border:none;
+  cursor:pointer;
+  font-size:18px;
+  line-height:1;
+  color:var(--muted);
+  padding:2px 6px;
+}
+.section-body { transition:all 0.2s; }
+.section-body.collapsed { display:none; }
+
+/* TASK TABLE */
+.task-table {
+  width:100%;
+  border-collapse:collapse;
+  font-size:14px;
+}
+.task-table thead th {
+  text-align:left;
+  padding:8px 10px;
+  font-size:11px;
+  font-weight:700;
+  text-transform:uppercase;
+  color:var(--muted);
+  border-bottom:2px solid var(--border);
+  background:#f8fafc;
+}
+.task-table tbody tr {
+  border-bottom:1px solid var(--border);
+  transition:background 0.1s;
+}
+.task-table tbody tr:hover { background:#f8fafc; }
+.task-table td {
+  padding:10px 10px;
+  vertical-align:top;
+}
+.task-table tbody tr:last-child { border-bottom:none; }
+
+/* TASK CELLS */
+.t-name { font-size:16px; font-weight:600; color:var(--text); display:block; }
+.t-detail { font-size:14px; color:var(--muted); display:block; margin-top:2px; }
+.t-done .t-name { text-decoration:line-through; opacity:0.55; }
+
+/* STATUS PILLS */
+.status-pill {
+  display:inline-block;
+  padding:3px 9px;
+  border-radius:20px;
+  font-size:13px;
+  font-weight:600;
+  cursor:pointer;
+  white-space:nowrap;
+  transition:opacity 0.15s;
+}
+.status-pill:hover { opacity:0.8; }
+.s-not-started { background:#F1F5F9; color:#64748B; }
+.s-in-progress { background:#FEF3C7; color:#D97706; }
+.s-done { background:#D1FAE5; color:#059669; }
+.s-planned { background:#DBEAFE; color:#2563EB; }
+.s-live { background:#D1FAE5; color:#059669; }
+.s-draft { background:#FEF3C7; color:#D97706; }
+.s-ready { background:#D1FAE5; color:#059669; }
+.s-scheduled { background:#EDE9FE; color:#6D28D9; }
+.s-published { background:#CFFAFE; color:#0E7490; }
+
+/* CATEGORY BADGE */
+.cat-badge {
+  display:inline-block;
+  padding:2px 8px;
+  border-radius:20px;
+  font-size:13px;
+  font-weight:600;
+  color:#fff;
+  white-space:nowrap;
+}
+
+/* REF CHIP */
+.ref-chip {
+  display:inline-block;
+  padding:2px 8px;
+  border-radius:12px;
+  font-size:12px;
+  font-weight:600;
+  background:#EDE9FE;
+  color:#6D28D9;
+  cursor:pointer;
+  margin-left:4px;
+  vertical-align:middle;
+  text-decoration:none;
+  transition:background 0.15s;
+}
+.ref-chip:hover { background:#DDD6FE; }
+
+/* TASK ACTIONS */
+.task-actions {
+  display:flex;
+  gap:5px;
+  opacity:0;
+  transition:opacity 0.15s;
+}
+tr:hover .task-actions { opacity:1; }
+.act-btn {
+  background:none;
+  border:1px solid var(--border);
+  border-radius:6px;
+  cursor:pointer;
+  padding:3px 7px;
+  font-size:12px;
+  color:var(--muted);
+}
+.act-btn:hover { background:var(--bg); color:var(--text); }
+.act-btn.del:hover { background:#FEE2E2; color:#DC2626; border-color:#FCA5A5; }
+
+/* ADD ROW */
+.add-row {
+  display:flex;
+  gap:8px;
+  margin-top:12px;
+  flex-wrap:wrap;
+  align-items:center;
+}
+.add-row input, .add-row select, .add-row textarea {
+  border:1.5px solid var(--border);
+  border-radius:var(--radius-sm);
+  padding:7px 10px;
+  font-size:14px;
+  font-family:'DM Sans',sans-serif;
+  outline:none;
+  transition:border-color 0.15s;
+  background:#fff;
+}
+.add-row input:focus, .add-row select:focus { border-color:var(--teal); }
+.add-row input.inp-name { flex:1; min-width:140px; }
+.add-row input.inp-detail { flex:1; min-width:120px; }
+.add-row select.sel-cat { min-width:130px; }
+.add-row select.sel-status { min-width:110px; }
+
+/* DRAG */
+.dragging { opacity:0.4; }
+.drag-over { background:#E0F2FE !important; outline:2px dashed var(--teal); outline-offset:-2px; }
+
+/* MOVE DROPDOWN */
+.move-select { border-radius:6px; padding:4px 6px; font-size:12px; border:1px solid var(--border); }
+
+/* WEEK GRID */
+.week-grid { width:100%; border-collapse:collapse; font-size:14px; }
+.week-grid th {
+  background:var(--navy);
+  color:#fff;
+  padding:10px 12px;
+  font-size:13px;
+  font-family:'DM Sans',sans-serif;
+}
+.week-grid td {
+  padding:8px 10px;
+  border:1px solid var(--border);
+  vertical-align:top;
+  min-width:60px;
+}
+.week-grid .time-col {
+  font-weight:700;
+  color:var(--teal);
+  background:#f8fafc;
+  white-space:nowrap;
+  position:sticky;
+  left:0;
+  z-index:2;
+  min-width:60px;
+}
+.week-grid-wrap { overflow-x:auto; }
+.day-note-input {
+  width:100%;
+  border:none;
+  background:transparent;
+  font-size:13px;
+  font-family:'DM Sans',sans-serif;
+  color:var(--text);
+  resize:none;
+  outline:none;
+  min-height:22px;
+}
+.day-note-input:focus { background:#F0FDF4; border-radius:4px; }
+
+/* KPI CARDS */
+.kpi-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; margin-bottom:16px; }
+.kpi-card {
+  background:var(--card);
+  border-radius:12px;
+  padding:16px;
+  text-align:center;
+  box-shadow:0 1px 6px rgba(0,0,0,0.07);
+}
+.kpi-label { font-size:12px; font-weight:700; text-transform:uppercase; color:var(--muted); margin-bottom:6px; }
+.kpi-value { font-size:26px; font-weight:700; color:var(--navy); font-family:'Playfair Display',serif; }
+.kpi-value.green { color:#059669; }
+.kpi-value.red { color:#DC2626; }
+.kpi-value.gold { color:var(--gold); }
+
+/* PROGRESS BAR */
+.progress-wrap { background:#E2E8F0; border-radius:99px; height:8px; overflow:hidden; margin-top:6px; }
+.progress-bar { height:100%; border-radius:99px; background:linear-gradient(90deg,var(--teal),var(--teal-light)); transition:width 0.4s; }
+
+/* COLLAPSIBLE NOTES */
+.notes-section { margin-top:16px; }
+.notes-header {
+  display:flex;
+  align-items:center;
+  gap:8px;
+  cursor:pointer;
+  padding:10px 14px;
+  background:#f8fafc;
+  border-radius:var(--radius-sm);
+  user-select:none;
+}
+.notes-header:hover { background:#f1f5f9; }
+.notes-body { padding:12px 14px; background:#fff; border-radius:0 0 var(--radius-sm) var(--radius-sm); border:1px solid var(--border); border-top:none; display:none; }
+.notes-body.open { display:block; }
+.note-entry { border-bottom:1px solid var(--border); padding:8px 0; }
+.note-entry:last-child { border-bottom:none; }
+.note-date { font-size:12px; font-weight:700; color:var(--teal); margin-bottom:4px; }
+.note-text { font-size:14px; color:var(--text); white-space:pre-wrap; }
+
+/* FINANCE TABLE */
+.fin-table { width:100%; border-collapse:collapse; font-size:14px; }
+.fin-table th { text-align:left; padding:8px 12px; font-size:11px; font-weight:700; text-transform:uppercase; color:var(--muted); border-bottom:2px solid var(--border); }
+.fin-table td { padding:9px 12px; border-bottom:1px solid var(--border); }
+.fin-table .amount { font-weight:700; text-align:right; }
+.fin-table .total-row td { font-weight:700; background:#f8fafc; }
+.fin-total-pos { color:#059669; }
+.fin-total-neg { color:#DC2626; }
+
+/* TOAST */
+.toast-container { position:fixed; bottom:24px; right:24px; z-index:9999; display:flex; flex-direction:column; gap:8px; }
+.toast {
+  background:var(--navy);
+  color:#fff;
+  padding:12px 18px;
+  border-radius:10px;
+  font-size:14px;
+  font-weight:500;
+  box-shadow:0 4px 20px rgba(0,0,0,0.2);
+  animation:slideIn 0.2s ease;
+  max-width:320px;
+}
+@keyframes slideIn { from { transform:translateY(20px); opacity:0; } to { transform:translateY(0); opacity:1; } }
+
+/* MODAL */
+.modal-overlay {
+  position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:1000;
+  display:flex; align-items:center; justify-content:center;
+  padding:20px;
+}
+.modal-overlay.hidden { display:none; }
+.modal {
+  background:#fff;
+  border-radius:20px;
+  padding:24px;
+  display:flex;
+  flex-direction:column;
+  max-width:600px;
+  width:100%;
+  max-height:90vh;
+  overflow:hidden;
+  box-shadow:0 20px 60px rgba(0,0,0,0.3);
+}
+#eodBody { overflow-y:auto; flex:1; padding-right:4px; }
+.modal-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; flex-shrink:0; }
+.modal-header h2 { font-size:22px; color:var(--navy); }
+.modal-close { background:none; border:none; font-size:24px; cursor:pointer; color:var(--muted); line-height:1; }
+.modal-close:hover { color:var(--text); }
+.modal-footer { flex-shrink:0; }
+.modal-section { margin-bottom:16px; }
+.modal-section h4 { font-size:14px; font-weight:700; color:var(--teal); margin-bottom:10px; font-family:'DM Sans',sans-serif; }
+.eod-task { display:flex; align-items:flex-start; gap:10px; padding:8px 0; border-bottom:1px solid var(--border); }
+.eod-task:last-child { border-bottom:none; }
+.eod-task input[type=checkbox] { margin-top:2px; width:16px; height:16px; accent-color:var(--teal); }
+.eod-task .eod-name { font-size:14px; flex:1; }
+.eod-notes-area {
+  width:100%;
+  border:1.5px solid var(--border);
+  border-radius:var(--radius-sm);
+  padding:10px;
+  font-size:14px;
+  font-family:'DM Sans',sans-serif;
+  min-height:80px;
+  resize:vertical;
+  outline:none;
+}
+.eod-notes-area:focus { border-color:var(--teal); }
+.modal-footer { display:flex; gap:10px; justify-content:flex-end; margin-top:20px; }
+.btn-primary { background:var(--teal); color:#fff; }
+.btn-primary:hover { background:#016f7b; }
+.btn-secondary { background:#f1f5f9; color:var(--text); }
+.btn-secondary:hover { background:#e2e8f0; }
+
+/* PAGE TITLE */
+.page-title {
+  font-size:24px;
+  color:var(--navy);
+  margin-bottom:4px;
+}
+.page-subtitle {
+  font-size:14px;
+  color:var(--muted);
+  margin-bottom:20px;
+}
+
+/* CONTENT TRACKER SPECIAL */
+.ct-platform { font-size:12px; font-weight:700; text-transform:uppercase; }
+.ct-type-badge { display:inline-block; padding:2px 7px; border-radius:12px; font-size:12px; background:#F1F5F9; color:#475569; font-weight:600; }
+
+/* MARKETING SECTION */
+.mkt-channel { font-size:12px; font-weight:700; color:var(--muted); }
+.mkt-audience { font-size:12px; color:var(--muted); }
+.mkt-date { font-size:12px; color:var(--text); white-space:nowrap; }
+
+/* MOBILE */
+@media (max-width:640px) {
+  .app-header { padding:8px 12px 6px; }
+  .app-header h1 { font-size:14px; }
+  .header-right { gap:4px; }
+  .btn-sm { padding:5px 8px; font-size:11px; }
+  .week-label { min-width:80px !important; font-size:12px !important; }
+  .hide-mobile { display:none !important; }
+  .tab-content { padding:12px; }
+  .card { padding:14px; }
+  .task-table thead { display:none; }
+  .task-table tbody tr {
+    display:block;
+    background:#fff;
+    border-radius:12px;
+    margin-bottom:12px;
+    padding:14px;
+    box-shadow:0 1px 6px rgba(0,0,0,0.08);
+    border:none;
+  }
+  .task-table td {
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    padding:5px 0;
+    border:none;
+  }
+  .task-table td::before {
+    content:attr(data-label);
+    font-size:10px;
+    font-weight:700;
+    color:#94A3B8;
+    text-transform:uppercase;
+    flex-shrink:0;
+    width:85px;
+    margin-right:8px;
+    padding-top:2px;
+  }
+  .task-actions { opacity:1 !important; }
+  .week-grid td { min-width:80px; }
+  .kpi-grid { grid-template-columns:repeat(2,1fr); }
+  .modal { padding:16px; border-radius:20px 20px 0 0; max-height:85vh; }
+  .modal-overlay { align-items:flex-end; padding:0; }
+  .fin-table thead { display:none; }
+  .fin-table tbody tr { display:block; border-radius:8px; background:#fff; margin-bottom:8px; padding:10px; box-shadow:0 1px 4px rgba(0,0,0,0.06); border:none; }
+  .fin-table td { display:flex; justify-content:space-between; padding:4px 0; border:none; }
+  .fin-table td::before { content:attr(data-label); font-size:10px; font-weight:700; color:#94A3B8; text-transform:uppercase; }
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="app-header" id="appHeader">
+  <div class="header-row1">
+    <div class="header-left">
+      <h1>📊 EdFinHealth Weekly Command Centre</h1>
+      <div class="header-sub" id="headerSub">Loading week...</div>
+    </div>
+    <div class="header-right">
+      <button class="btn btn-outline btn-sm" onclick="openEodModal()">🌙 EOD</button>
+      <button class="btn btn-gold btn-sm" onclick="rollNextWeek()">🔄 Roll</button>
+      <button class="btn btn-outline btn-sm hide-mobile" onclick="exportData()">📤 Export</button>
+      <button class="btn btn-outline btn-sm hide-mobile" onclick="importData()">📥 Import</button>
+    </div>
+  </div>
+  <div class="header-row2">
+    <div class="week-nav">
+      <button class="week-arrow" onclick="changeWeek(-1)">‹</button>
+      <div class="week-label" id="weekLabel">—</div>
+      <button class="week-arrow" onclick="changeWeek(1)">›</button>
+    </div>
+  </div>
+</header>
+
+<!-- TAB BAR -->
+<div class="tab-bar" id="tabBar">
+  <button class="tab-btn active" onclick="switchTab(0)">✅ CEO Brief</button>
+  <button class="tab-btn" onclick="switchTab(1)">📌 Priority Focus</button>
+  <button class="tab-btn" onclick="switchTab(2)">📅 Week at a Glance</button>
+  <button class="tab-btn" onclick="switchTab(3)">📋 Daily Task Lists</button>
+  <button class="tab-btn" onclick="switchTab(4)">📣 Marketing &amp; Sales</button>
+  <button class="tab-btn" onclick="switchTab(5)">🖊️ Content Tracker</button>
+  <button class="tab-btn" onclick="switchTab(6)">💰 Revenue Tracker</button>
+  <button class="tab-btn" onclick="switchTab(7)">💳 Finance</button>
+</div>
+
+<!-- TAB CONTENT -->
+<div class="tab-content" id="tabContent">
+
+  <!-- TAB 0: CEO BRIEF -->
+  <div class="tab-pane active" id="tab-0">
+    <h2 class="page-title">✅ CEO Brief</h2>
+    <p class="page-subtitle">Strategic overview by category. Syncs with Priority Focus.</p>
+    <div id="ceoContent"></div>
+  </div>
+
+  <!-- TAB 1: PRIORITY FOCUS -->
+  <div class="tab-pane" id="tab-1">
+    <h2 class="page-title">📌 Priority Focus</h2>
+    <p class="page-subtitle">Your top tasks for the week — drag to reprioritise.</p>
+    <div id="priorityContent"></div>
+  </div>
+
+  <!-- TAB 2: WEEK AT A GLANCE -->
+  <div class="tab-pane" id="tab-2">
+    <h2 class="page-title">📅 Week at a Glance</h2>
+    <p class="page-subtitle">Your weekly schedule — click any cell to edit.</p>
+    <div id="weekContent"></div>
+  </div>
+
+  <!-- TAB 3: DAILY TASK LISTS -->
+  <div class="tab-pane" id="tab-3">
+    <h2 class="page-title">📋 Daily Task Lists</h2>
+    <p class="page-subtitle">Household, kids, cleaner and planning tasks.</p>
+    <div id="dailyContent"></div>
+  </div>
+
+  <!-- TAB 4: MARKETING & SALES -->
+  <div class="tab-pane" id="tab-4">
+    <h2 class="page-title">📣 Marketing &amp; Sales</h2>
+    <p class="page-subtitle">Launch campaigns, content and automation.</p>
+    <div id="marketingContent"></div>
+  </div>
+
+  <!-- TAB 5: CONTENT TRACKER -->
+  <div class="tab-pane" id="tab-5">
+    <h2 class="page-title">🖊️ Content Tracker</h2>
+    <p class="page-subtitle">All content pieces — track status and publish dates.</p>
+    <div id="contentContent"></div>
+  </div>
+
+  <!-- TAB 6: REVENUE TRACKER -->
+  <div class="tab-pane" id="tab-6">
+    <h2 class="page-title">💰 Revenue Tracker</h2>
+    <p class="page-subtitle">Weekly revenue targets and product performance.</p>
+    <div id="revenueContent"></div>
+  </div>
+
+  <!-- TAB 7: FINANCE -->
+  <div class="tab-pane" id="tab-7">
+    <h2 class="page-title">💳 Finance</h2>
+    <p class="page-subtitle">Personal weekly income and expenses.</p>
+    <div id="financeContent"></div>
+  </div>
+
+</div>
+
+<!-- EOD MODAL -->
+<div class="modal-overlay hidden" id="eodOverlay">
+  <div class="modal" id="eodModal">
+    <div class="modal-header">
+      <h2>🌙 End of Day Review</h2>
+      <button class="modal-close" onclick="closeEodModal()">×</button>
+    </div>
+    <div id="eodBody"></div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeEodModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveEod()">✓ Confirm &amp; Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST CONTAINER -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+// ─── CONSTANTS ─────────────────────────────────────────────
+const CATS = {
+  'legal':   {label:'🪷 Legal',      color:'#EC4899'},
+  'revenue': {label:'🟢 Revenue',    color:'#10B981'},
+  'sprint':  {label:'⚡ Sprint',     color:'#7C3AED'},
+  'product': {label:'🟣 Product',    color:'#A855F7'},
+  'personal':{label:'🔵 Personal',   color:'#3B82F6'},
+  'ai':      {label:'⚫ AI Build',   color:'#374151'},
+  'content': {label:'🟡 Content',    color:'#F59E0B'},
+  'ops':     {label:'🔴 Operations', color:'#EF4444'},
+  'strategy':{label:'📊 Strategy',   color:'#028090'},
+  'fitness': {label:'🟠 Fitness',    color:'#F97316'},
+};
+
+const STATUS_CYCLE = {
+  'not-started':'in-progress',
+  'in-progress':'done',
+  'done':'not-started',
+  'planned':'in-progress',
+  'todo':'in-progress',
+  'draft':'ready',
+  'ready':'scheduled',
+  'scheduled':'published',
+  'published':'not-started'
+};
+
+const STATUS_LABELS = {
+  'not-started':'Not Started','in-progress':'In Progress','done':'Done',
+  'planned':'Planned','live':'Live','draft':'Draft','ready':'Ready',
+  'scheduled':'Scheduled','published':'Published','todo':'To Do'
+};
+
+const CEO_TO_CAT = {legal:'legal',revenue:'revenue',aiBuild:'ai',content:'content',operations:'ops'};
+const CAT_TO_CEO = {legal:'legal',revenue:'revenue',ai:'aiBuild',content:'content',ops:'operations'};
+
+const REF_LABELS = {
+  marketing:{icon:'📣',label:'Marketing'},
+  content:{icon:'🖊️',label:'Content'},
+  revenue:{icon:'💰',label:'Revenue'},
+  finance:{icon:'💳',label:'Finance'}
+};
+
+const TAB_INDEXES = {priority:1,marketing:4,content:5,revenue:6,finance:7};
+
+// ─── STATE ─────────────────────────────────────────────────
+let currentDate = new Date('2026-03-30');
+let weekKey = '';
+let state = {};
+let activeTab = 0;
+
+function uid() { return Math.random().toString(36).substr(2,9); }
+
+// ─── WEEK HELPERS ──────────────────────────────────────────
+function getWeekKey(d) {
+  const day = d.getDay();
+  const mon = new Date(d);
+  mon.setDate(d.getDate() - (day === 0 ? 6 : day - 1));
+  const jan1 = new Date(mon.getFullYear(), 0, 1);
+  const wk = Math.ceil(((mon - jan1) / 86400000 + jan1.getDay() + 1) / 7);
+  return `wcc_${mon.getFullYear()}_W${String(wk).padStart(2,'0')}`;
+}
+
+function getMonday(d) {
+  const day = d.getDay();
+  const mon = new Date(d);
+  mon.setDate(d.getDate() - (day === 0 ? 6 : day - 1));
+  mon.setHours(0,0,0,0);
+  return mon;
+}
+
+function getSunday(d) {
+  const mon = getMonday(d);
+  const sun = new Date(mon);
+  sun.setDate(mon.getDate() + 6);
+  return sun;
+}
+
+function formatWeekLabel(d) {
+  const mon = getMonday(d);
+  const sun = getSunday(d);
+  const fmtOpts = {day:'numeric',month:'short'};
+  return `${mon.toLocaleDateString('en-AU',fmtOpts)} – ${sun.toLocaleDateString('en-AU',{...fmtOpts,year:'numeric'})}`;
+}
+
+function changeWeek(dir) {
+  currentDate.setDate(currentDate.getDate() + dir * 7);
+  weekKey = getWeekKey(currentDate);
+  loadState();
+  updateHeader();
+  renderActive();
+}
+
+// ─── DEFAULT DATA ──────────────────────────────────────────
+function buildDefaultState() {
+  const t = (name, detail, cat, status, refTab) => ({id:uid(), name, detail, cat, status:status||'not-started', refTab:refTab||''});
+  return {
+    priorityFocus: {
+      urgent: [
+        t('Launch STAT Quiz to email list','Send campaign to 2,847 subscribers','revenue','not-started'),
+        t('Fix Kajabi checkout redirect','Broken link — urgent revenue loss','ops','in-progress'),
+        t('File March BAS','ATO Business Activity Statement due April 28','legal','not-started'),
+      ],
+      business: [
+        t('Record STAT Module 1 video','10-min intro lesson in home studio','content','not-started','content'),
+        t('Record STAT Module 2 video','Tax deductions deep dive','content','not-started','content'),
+        t('Write 5-email welcome sequence','STAT student onboarding series','content','not-started','marketing'),
+        t('Build AI quiz helper prototype','Claude API + EdFinHealth quiz logic','ai','not-started'),
+        t('Set up Xero for April','Import March bank statements + categorise','ops','not-started','finance'),
+        t('Instagram Reels x3 this week','STAT awareness batch content','content','not-started','content'),
+        t('Healthcare upsell email campaign','Offer STAT to 180 HC quiz leads','revenue','not-started','marketing'),
+      ],
+      life: [
+        t('Book school holiday activities','Luca + Mia — April 14-25 holidays','personal','not-started'),
+        t('Book physio appointment','Lower back — overdue since February','fitness','not-started'),
+        t('Meal prep Sunday','5 x lunches + dinners for work week','personal','not-started'),
+        t('Car service booking','Overdue by 3,000km','personal','not-started'),
+      ]
+    },
+    ceoBrief: {
+      legal: [
+        t('File March BAS','ATO deadline April 28 | Hidy','legal','not-started'),
+        t('Review VA contractor agreements','2 new contracts — check IP clauses | Hidy','legal','not-started'),
+      ],
+      revenue: [
+        t('STAT quiz launch to email list','Target: 50 enrolments @ $297 = $14,850 | Hidy','revenue','not-started','marketing'),
+        t('Chase 3 overdue invoices','Total $4,200 outstanding — send reminders | Hidy','revenue','not-started'),
+        t('Healthcare vertical upsell','Email 180 HC leads about STAT upgrade | Hidy','revenue','not-started','marketing'),
+      ],
+      aiBuild: [
+        t('AI quiz helper prototype v1','Build quiz helper using Claude API | Hidy','ai','not-started'),
+        t('Automate weekly reporting','Claude API + GA4 data → summary | Hidy','ai','not-started'),
+      ],
+      content: [
+        t('STAT Module 1 + 2 videos','Record 2 x 10-min lessons | Hidy','content','not-started','content'),
+        t('Email welcome sequence','5-part STAT student onboarding | Hidy','content','not-started','marketing'),
+        t('Instagram Reels batch','Film + edit 3 x Reels | Hidy','content','not-started','content'),
+      ],
+      operations: [
+        t('Fix Kajabi checkout link','STAT course checkout broken — fix redirect | Hidy','ops','in-progress'),
+        t('Xero April reconciliation','Import March bank statements | Hidy','ops','not-started','finance'),
+        t('Update privacy policy','Add AI tool disclosure per ACCC guidelines | Hidy','ops','not-started'),
+      ]
+    },
+    weekAtGlance: {
+      'Mon-6:00':'Morning walk','Mon-7:00':'Kids school run','Mon-8:30':'Deep work: STAT scripts',
+      'Mon-10:00':'Fix Kajabi checkout','Mon-12:00':'Lunch + email triage','Mon-1:00':'Record STAT Module 1',
+      'Mon-3:00':'School pickup','Mon-8:00':'Plan Tuesday',
+      'Tue-6:00':'Morning routine','Tue-7:00':'School run','Tue-8:30':'Deep work: email sequence',
+      'Tue-10:00':'Team check-in (Slack) / Laura (cleaner)','Tue-12:00':'Lunch','Tue-1:00':'Record STAT Module 2',
+      'Tue-3:00':'School pickup',
+      'Wed-6:00':'Morning walk','Wed-7:00':'School run','Wed-8:30':'Deep work: AI prototype',
+      'Wed-12:00':'Grocery pickup','Wed-1:00':'Instagram Reels filming','Wed-3:00':'School pickup',
+      'Wed-4:00':'Luca soccer training','Wed-8:00':'Meal prep prep',
+      'Thu-6:00':'Physio (book!)','Thu-7:00':'School run','Thu-8:30':'Deep work: BAS prep',
+      'Thu-12:00':'Lunch','Thu-1:00':'Instagram Reels editing','Thu-3:00':'School pickup',
+      'Thu-3:30':'Mia dance class','Thu-8:00':'Admin',
+      'Fri-6:00':'Morning routine','Fri-7:00':'School run','Fri-8:30':'Deep work: revenue chase',
+      'Fri-10:00':'STAT launch email','Fri-12:00':'Lunch','Fri-1:00':'Weekly review',
+      'Fri-3:00':'School pickup','Fri-5:00':'Admin + inbox clear','Fri-8:00':'Family movie night',
+      'Sat-9:00':'Grocery shopping','Sat-12:00':'Meal prep','Sat-3:00':'Family activity','Sat-5:00':'EOW admin',
+      'Sun-8:00':'Slow morning','Sun-10:00':'Week planning','Sun-12:00':'Family lunch','Sun-3:00':'Prep for Mon',
+    },
+    dailyTasks: {
+      planning: [
+        {id:uid(),name:'Easter Monday',detail:'April 6, 2026 | Public holiday | no school',cat:'personal',status:'planned',refTab:''},
+        {id:uid(),name:'Anzac Day',detail:'April 25, 2026 | Public holiday',cat:'personal',status:'not-started',refTab:''},
+        {id:uid(),name:'Term 2 start',detail:'April 28, 2026 | School resumes',cat:'personal',status:'planned',refTab:''},
+        {id:uid(),name:'Luca — Year 7 Grammar School 2027',detail:'Submit by June 30, 2026 | Hidy',cat:'personal',status:'in-progress',refTab:''},
+        {id:uid(),name:'Mia — Kindy 2027 Local Primary',detail:'Submit by May 15, 2026 | Hidy',cat:'personal',status:'not-started',refTab:''},
+      ],
+      household: [
+        {id:uid(),name:'Weekly grocery order',detail:'Wednesday delivery',cat:'ops',status:'not-started',refTab:''},
+        {id:uid(),name:'Put out bins',detail:'Tuesday night',cat:'ops',status:'planned',refTab:''},
+        {id:uid(),name:'Pay electricity bill',detail:'Due April 5',cat:'ops',status:'not-started',refTab:''},
+        {id:uid(),name:'Vacuum + mop upstairs',detail:'Before Laura arrives Tue',cat:'ops',status:'not-started',refTab:''},
+      ],
+      kids: [
+        {id:uid(),name:'Luca soccer training',detail:'Wednesday 4:00pm',cat:'personal',status:'planned',refTab:''},
+        {id:uid(),name:'Mia dance class',detail:'Thursday 3:30pm',cat:'personal',status:'planned',refTab:''},
+        {id:uid(),name:'Dentist check-up',detail:'Book for April — both kids overdue',cat:'personal',status:'not-started',refTab:''},
+        {id:uid(),name:'Family movie night',detail:'Friday evening',cat:'personal',status:'planned',refTab:''},
+      ],
+      cleaner: [
+        {id:uid(),name:'Laura (fortnightly clean)',detail:'Tuesday 10am–2pm | leave $180 cash',cat:'ops',status:'planned',refTab:''},
+        {id:uid(),name:'Leave front door code',detail:'Leave note for Laura',cat:'ops',status:'not-started',refTab:''},
+        {id:uid(),name:'Air con filter clean',detail:'DIY — overdue',cat:'ops',status:'not-started',refTab:''},
+      ]
+    },
+    revenue: {
+      kpis: {target:15000, float:3200, gap:11800, mortgage:4200},
+      products: [
+        {id:uid(),name:'STAT Course',price:297,units:50,status:'launching',launch:'Apr 2026',note:'Main product launch'},
+        {id:uid(),name:'STAT Live Workshop',price:97,units:20,status:'planned',launch:'Apr 2026',note:'Live Q&A add-on'},
+        {id:uid(),name:'1:1 Tax Coaching',price:500,units:4,status:'active',launch:'ongoing',note:'Premium tier'},
+        {id:uid(),name:'HC Quiz Lead Gen',price:0,units:500,status:'live',launch:'Mar 2026',note:'Lead gen for STAT'},
+        {id:uid(),name:'EdFinHealth Membership',price:49,units:10,status:'soft-launch',launch:'Apr 2026',note:'Monthly community'},
+      ]
+    },
+    marketing: {
+      launchWeek: [
+        {id:uid(),name:'Day 1: "The Tax Mistake..." launch email',detail:'Open rate target 35%',channel:'Email',date:'Mar 30',status:'not-started',audience:'Healthcare',subStatus:'planned'},
+        {id:uid(),name:'Instagram launch Reel',detail:'STAT quiz hook — swipe to take quiz',channel:'Instagram',date:'Mar 30',status:'not-started',audience:'Finance',subStatus:'planned'},
+        {id:uid(),name:'Day 3 follow-up email',detail:'Social proof + FAQ',channel:'Email',date:'Apr 1',status:'not-started',audience:'Healthcare',subStatus:'planned'},
+        {id:uid(),name:'Facebook awareness ad',detail:'STAT quiz targeting HC workers',channel:'Facebook',date:'Apr 1',status:'not-started',audience:'Healthcare',subStatus:'planned'},
+        {id:uid(),name:'Day 5 close email',detail:'Last chance + early-bird bonus',channel:'Email',date:'Apr 3',status:'not-started',audience:'Finance',subStatus:'planned'},
+      ],
+      content: [
+        {id:uid(),name:'Weekly newsletter',detail:'EdFinHealth community update',channel:'Email',date:'Mar 31',status:'planned',audience:'Brand'},
+        {id:uid(),name:'LinkedIn article',detail:'Tax planning for healthcare workers',channel:'LinkedIn',date:'Apr 2',status:'draft',audience:'Healthcare'},
+      ],
+      automation: [
+        {id:uid(),name:'STAT welcome email sequence',detail:'Kajabi trigger on enrolment',channel:'Email',date:'Apr 1',status:'planned',audience:'Finance'},
+        {id:uid(),name:'Abandoned cart 3-email series',detail:'1h, 24h, 72h delays',channel:'Email',date:'Apr 5',status:'not-started',audience:'Finance'},
+      ]
+    },
+    contentTracker: [
+      {id:uid(),title:'Top 5 Tax Deductions HC Workers Miss',hook:'Lead with surprising dollar amount',type:'Reel',platform:'Instagram',audience:'Healthcare',status:'ready',date:'Mar 30'},
+      {id:uid(),title:'Is Your Mortgage Strategy Costing You?',hook:'STAT quiz soft sell',type:'Carousel',platform:'Instagram',audience:'Finance',status:'draft',date:'Apr 1'},
+      {id:uid(),title:'March BAS Checklist for Small Business',hook:'Time-sensitive — share before April',type:'Blog',platform:'Website',audience:'SME',status:'draft',date:'Apr 3'},
+      {id:uid(),title:'Behind the Scenes: Building STAT',hook:'Founder story — authenticity',type:'Story',platform:'Instagram',audience:'Brand',status:'ready',date:'Apr 2'},
+      {id:uid(),title:'3 Things I Wish I Knew About Super at 30',hook:'Personal hook + product tie-in',type:'Reel',platform:'TikTok',audience:'Finance',status:'not-started',date:'Apr 4'},
+    ],
+    finance: {
+      income: [
+        {id:uid(),name:'Business distributions',amount:2500,note:'weekly draw'},
+        {id:uid(),name:'Freelance consulting',amount:800,note:'Apr 2 invoice'},
+      ],
+      expenses: [
+        {id:uid(),name:'Mortgage (weekly portion)',amount:1050,note:''},
+        {id:uid(),name:'Groceries',amount:280,note:''},
+        {id:uid(),name:'Kids activities',amount:120,note:'soccer + dance'},
+        {id:uid(),name:'Utilities',amount:85,note:''},
+        {id:uid(),name:'Subscriptions (tools)',amount:145,note:''},
+        {id:uid(),name:'Eating out',amount:60,note:''},
+      ]
+    },
+    dayNotes: {}
+  };
+}
+
+// ─── STORAGE ───────────────────────────────────────────────
+function saveState() {
+  localStorage.setItem(weekKey, JSON.stringify(state));
+}
+
+function loadState() {
+  const raw = localStorage.getItem(weekKey);
+  if (raw) {
+    try { state = JSON.parse(raw); } catch(e) { state = buildDefaultState(); }
+  } else {
+    state = buildDefaultState();
+    saveState();
+  }
+  // Ensure all sub-keys exist
+  if (!state.dayNotes) state.dayNotes = {};
+  if (!state.weekAtGlance) state.weekAtGlance = {};
+}
+
+// ─── HEADER ────────────────────────────────────────────────
+function updateHeader() {
+  document.getElementById('weekLabel').textContent = formatWeekLabel(currentDate);
+  const mon = getMonday(currentDate);
+  const wk = getWeekKey(currentDate);
+  const wNum = wk.split('_W')[1];
+  document.getElementById('headerSub').textContent = `Week ${parseInt(wNum)} — ${mon.toLocaleDateString('en-AU',{month:'long',year:'numeric'})}`;
+  weekKey = wk;
+}
+
+function fixTabBarTop() {
+  const h = document.getElementById('appHeader').offsetHeight;
+  document.querySelector('.tab-bar').style.top = h + 'px';
+}
+
+// ─── TABS ──────────────────────────────────────────────────
+function switchTab(idx) {
+  activeTab = idx;
+  document.querySelectorAll('.tab-pane').forEach((p,i)=>{
+    p.classList.toggle('active', i===idx);
+  });
+  document.querySelectorAll('.tab-btn').forEach((b,i)=>{
+    b.classList.toggle('active', i===idx);
+  });
+  renderActive();
+}
+
+function renderActive() {
+  const renders = [
+    renderCeo, renderPriority, renderWeek, renderDaily,
+    renderMarketing, renderContent, renderRevenue, renderFinance
+  ];
+  if (renders[activeTab]) renders[activeTab]();
+}
+
+// ─── HELPERS ───────────────────────────────────────────────
+function statusClass(s) {
+  return 's-' + (s||'not-started').replace(/\s+/g,'-');
+}
+
+function statusLabel(s) {
+  return STATUS_LABELS[s] || s;
+}
+
+function catBadge(cat) {
+  const c = CATS[cat];
+  if (!c) return '';
+  return `<span class="cat-badge" style="background:${c.color}">${c.label}</span>`;
+}
+
+function statusPill(s, onclick) {
+  return `<span class="status-pill ${statusClass(s)}" onclick="${onclick}" title="Click to cycle status">${statusLabel(s)}</span>`;
+}
+
+function refChip(refTab) {
+  if (!refTab || !REF_LABELS[refTab]) return '';
+  const r = REF_LABELS[refTab];
+  return `<span class="ref-chip" onclick="switchTab(${TAB_INDEXES[refTab]})" title="Go to ${r.label}">${r.icon} ${r.label}</span>`;
+}
+
+function cycleStatus(arr, id) {
+  const item = arr.find(t=>t.id===id);
+  if (!item) return null;
+  item.status = STATUS_CYCLE[item.status] || 'not-started';
+  return item;
+}
+
+// ─── CEO SYNC ──────────────────────────────────────────────
+function syncCeoFromPriority(cat, newStatus) {
+  const ceoKey = CAT_TO_CEO[cat];
+  if (!ceoKey || !state.ceoBrief[ceoKey]) return;
+  if (newStatus !== 'done') return;
+  let synced = 0;
+  state.ceoBrief[ceoKey].forEach(t => {
+    if (t.status !== 'done') { t.status = 'done'; synced++; }
+  });
+  if (synced > 0) showToast(`✅ Synced ${synced} CEO item${synced>1?'s':''} to Done`);
+}
+
+function syncPriorityFromCeo(ceoKey, newStatus) {
+  const cat = CEO_TO_CAT[ceoKey];
+  if (!cat || newStatus !== 'done') return;
+  let synced = 0;
+  ['urgent','business','life'].forEach(k => {
+    state.priorityFocus[k].forEach(t => {
+      if (t.cat === cat && t.status !== 'done') { t.status = 'done'; synced++; }
+    });
+  });
+  if (synced > 0) showToast(`✅ Synced ${synced} Priority item${synced>1?'s':''} to Done`);
+}
+
+// ─── PRIORITY FOCUS ────────────────────────────────────────
+let dragSrc = null;
+
+function renderPriority() {
+  const el = document.getElementById('priorityContent');
+  const sections = [
+    {key:'urgent', label:'🚨 Urgent', color:'#EF4444'},
+    {key:'business', label:'💼 Business', color:'#028090'},
+    {key:'life', label:'🌿 Life', color:'#10B981'},
+  ];
+  let html = '';
+  sections.forEach(sec => {
+    const tasks = state.priorityFocus[sec.key] || [];
+    const done = tasks.filter(t=>t.status==='done').length;
+    html += `
+    <div class="card" data-section="${sec.key}">
+      <div class="card-header">
+        <h3 style="color:${sec.color}">${sec.label} <span style="color:var(--muted);font-size:13px;font-weight:500">${done}/${tasks.length}</span></h3>
+        <button class="btn btn-teal btn-sm" onclick="addPriorityTask('${sec.key}')">+ Add</button>
+      </div>
+      <div class="section-body" id="pf-${sec.key}"
+        ondragover="event.preventDefault();this.classList.add('drag-over')"
+        ondragleave="this.classList.remove('drag-over')"
+        ondrop="dropPriority(event,'${sec.key}')">`;
+    if (tasks.length === 0) {
+      html += `<p style="color:var(--muted);font-size:14px;padding:8px 0">No tasks yet — click + Add</p>`;
+    } else {
+      html += `<table class="task-table"><thead><tr>
+        <th>Task</th><th>Category</th><th>Status</th><th>Move</th><th>Actions</th>
+      </tr></thead><tbody>`;
+      tasks.forEach(t => {
+        const done = t.status === 'done';
+        html += `
+        <tr class="${done?'t-done':''}" draggable="true"
+          data-section="${sec.key}" data-id="${t.id}"
+          ondragstart="dragStartPriority(event,'${sec.key}','${t.id}')"
+          ondragend="this.classList.remove('dragging')">
+          <td data-label="Task">
+            <span class="t-name">${esc(t.name)}</span>
+            <span class="t-detail">${esc(t.detail)}${refChip(t.refTab)}</span>
+          </td>
+          <td data-label="Category">${catBadge(t.cat)}</td>
+          <td data-label="Status">${statusPill(t.status, `cyclePriority('${sec.key}','${t.id}')`)}</td>
+          <td data-label="Move">
+            <select class="move-select" onchange="movePriorityTask('${sec.key}','${t.id}',this.value)">
+              <option value="">Move to…</option>
+              ${sections.filter(s=>s.key!==sec.key).map(s=>`<option value="${s.key}">${s.label}</option>`).join('')}
+            </select>
+          </td>
+          <td data-label="Actions">
+            <div class="task-actions">
+              <button class="act-btn" onclick="editPriorityTask('${sec.key}','${t.id}')">✏️</button>
+              <button class="act-btn del" onclick="deletePriorityTask('${sec.key}','${t.id}')">🗑</button>
+            </div>
+          </td>
+        </tr>`;
+      });
+      html += `</tbody></table>`;
+    }
+    // Add task form (hidden)
+    html += `
+      <div class="add-row" id="add-pf-${sec.key}" style="display:none;margin-top:10px">
+        <input class="inp-name" id="pf-name-${sec.key}" placeholder="Task name…" onkeydown="if(event.key==='Enter')savePriorityTask('${sec.key}')">
+        <input class="inp-detail" id="pf-detail-${sec.key}" placeholder="Detail / action…">
+        <select class="sel-cat" id="pf-cat-${sec.key}">${catOptions()}</select>
+        <select class="sel-status" id="pf-status-${sec.key}">${statusOptions('not-started')}</select>
+        <input style="width:100px;border:1.5px solid var(--border);border-radius:8px;padding:7px 10px;font-size:13px" id="pf-ref-${sec.key}" placeholder="refTab…">
+        <button class="btn btn-teal btn-sm" onclick="savePriorityTask('${sec.key}')">Save</button>
+        <button class="btn btn-secondary btn-sm" onclick="cancelAdd('add-pf-${sec.key}')">Cancel</button>
+      </div>
+      </div></div>`;
+  });
+  el.innerHTML = html;
+}
+
+function dragStartPriority(e, section, id) {
+  dragSrc = {section, id};
+  e.currentTarget.classList.add('dragging');
+  e.dataTransfer.effectAllowed = 'move';
+}
+
+function dropPriority(e, targetSection) {
+  e.preventDefault();
+  e.currentTarget.classList.remove('drag-over');
+  if (!dragSrc || dragSrc.section === targetSection) return;
+  const src = state.priorityFocus[dragSrc.section];
+  const idx = src.findIndex(t=>t.id===dragSrc.id);
+  if (idx === -1) return;
+  const [task] = src.splice(idx, 1);
+  state.priorityFocus[targetSection].push(task);
+  dragSrc = null;
+  saveState();
+  renderPriority();
+  showToast(`Moved to ${targetSection}`);
+}
+
+function movePriorityTask(srcSection, id, targetSection) {
+  if (!targetSection) return;
+  const src = state.priorityFocus[srcSection];
+  const idx = src.findIndex(t=>t.id===id);
+  if (idx===-1) return;
+  const [task] = src.splice(idx,1);
+  state.priorityFocus[targetSection].push(task);
+  saveState(); renderPriority();
+  showToast(`Moved to ${targetSection}`);
+}
+
+function cyclePriority(section, id) {
+  const arr = state.priorityFocus[section];
+  const item = cycleStatus(arr, id);
+  if (!item) return;
+  syncCeoFromPriority(item.cat, item.status);
+  saveState(); renderPriority();
+}
+
+function addPriorityTask(section) {
+  document.getElementById(`add-pf-${section}`).style.display = 'flex';
+  document.getElementById(`pf-name-${section}`).focus();
+}
+
+function savePriorityTask(section) {
+  const name = document.getElementById(`pf-name-${section}`).value.trim();
+  if (!name) return;
+  const detail = document.getElementById(`pf-detail-${section}`).value.trim();
+  const cat = document.getElementById(`pf-cat-${section}`).value;
+  const status = document.getElementById(`pf-status-${section}`).value;
+  const refTab = document.getElementById(`pf-ref-${section}`).value.trim();
+  state.priorityFocus[section].push({id:uid(),name,detail,cat,status,refTab});
+  saveState(); renderPriority();
+}
+
+function cancelAdd(id) {
+  document.getElementById(id).style.display = 'none';
+}
+
+function deletePriorityTask(section, id) {
+  if (!confirm('Delete this task?')) return;
+  state.priorityFocus[section] = state.priorityFocus[section].filter(t=>t.id!==id);
+  saveState(); renderPriority();
+}
+
+function editPriorityTask(section, id) {
+  const arr = state.priorityFocus[section];
+  const t = arr.find(x=>x.id===id);
+  if (!t) return;
+  const name = prompt('Task name:', t.name);
+  if (name===null) return;
+  const detail = prompt('Detail:', t.detail);
+  t.name = name || t.name;
+  t.detail = detail !== null ? detail : t.detail;
+  saveState(); renderPriority();
+}
+
+// ─── CEO BRIEF ─────────────────────────────────────────────
+function renderCeo() {
+  const el = document.getElementById('ceoContent');
+  const sections = [
+    {key:'legal',label:'🪷 Legal'},
+    {key:'revenue',label:'🟢 Revenue'},
+    {key:'aiBuild',label:'⚫ AI Build'},
+    {key:'content',label:'🟡 Content'},
+    {key:'operations',label:'🔴 Operations'},
+  ];
+  let html = '';
+  sections.forEach(sec => {
+    const tasks = state.ceoBrief[sec.key] || [];
+    const done = tasks.filter(t=>t.status==='done').length;
+    html += `
+    <div class="card">
+      <div class="card-header">
+        <h3>${sec.label} <span style="color:var(--muted);font-size:13px;font-weight:500">${done}/${tasks.length}</span></h3>
+        <button class="btn btn-teal btn-sm" onclick="addCeoTask('${sec.key}')">+ Add</button>
+      </div>
+      <div class="section-body" id="ceo-${sec.key}">`;
+    if (tasks.length === 0) {
+      html += `<p style="color:var(--muted);font-size:14px;padding:8px 0">No tasks yet.</p>`;
+    } else {
+      html += `<table class="task-table"><thead><tr>
+        <th>Task</th><th>Category</th><th>Status</th><th>Actions</th>
+      </tr></thead><tbody>`;
+      tasks.forEach(t => {
+        const isDone = t.status==='done';
+        html += `
+        <tr class="${isDone?'t-done':''}">
+          <td data-label="Task">
+            <span class="t-name">${esc(t.name)}</span>
+            <span class="t-detail">${esc(t.detail)}${refChip(t.refTab)}</span>
+          </td>
+          <td data-label="Category">${catBadge(t.cat)}</td>
+          <td data-label="Status">${statusPill(t.status, `cycleCeo('${sec.key}','${t.id}')`)}</td>
+          <td data-label="Actions">
+            <div class="task-actions">
+              <button class="act-btn" onclick="editCeoTask('${sec.key}','${t.id}')">✏️</button>
+              <button class="act-btn del" onclick="deleteCeoTask('${sec.key}','${t.id}')">🗑</button>
+            </div>
+          </td>
+        </tr>`;
+      });
+      html += `</tbody></table>`;
+    }
+    html += `
+      <div class="add-row" id="add-ceo-${sec.key}" style="display:none;margin-top:10px">
+        <input class="inp-name" id="ceo-name-${sec.key}" placeholder="Task name…" onkeydown="if(event.key==='Enter')saveCeoTask('${sec.key}')">
+        <input class="inp-detail" id="ceo-detail-${sec.key}" placeholder="Detail…">
+        <select class="sel-cat" id="ceo-cat-${sec.key}">${catOptions()}</select>
+        <select class="sel-status" id="ceo-status-${sec.key}">${statusOptions('not-started')}</select>
+        <button class="btn btn-teal btn-sm" onclick="saveCeoTask('${sec.key}')">Save</button>
+        <button class="btn btn-secondary btn-sm" onclick="cancelAdd('add-ceo-${sec.key}')">Cancel</button>
+      </div>
+      </div></div>`;
+  });
+
+  // Daily notes collapsible
+  html += buildDailyNotesSection();
+  el.innerHTML = html;
+}
+
+function buildDailyNotesSection() {
+  const notes = state.dayNotes || {};
+  const keys = Object.keys(notes).sort().reverse();
+  if (keys.length === 0) return `<div class="notes-section"><div class="notes-header" onclick="this.nextElementSibling.classList.toggle('open')">📓 Daily Notes <span style="font-size:12px;color:var(--muted);margin-left:auto">No notes yet</span></div><div class="notes-body"></div></div>`;
+  let html = `<div class="notes-section"><div class="notes-header" onclick="this.nextElementSibling.classList.toggle('open')">📓 Daily Notes (${keys.length})</div><div class="notes-body">`;
+  keys.forEach(k => {
+    html += `<div class="note-entry"><div class="note-date">${k}</div><div class="note-text">${esc(notes[k])}</div></div>`;
+  });
+  html += `</div></div>`;
+  return html;
+}
+
+function cycleCeo(section, id) {
+  const arr = state.ceoBrief[section];
+  const item = cycleStatus(arr, id);
+  if (!item) return;
+  syncPriorityFromCeo(section, item.status);
+  saveState(); renderCeo();
+}
+
+function addCeoTask(section) {
+  document.getElementById(`add-ceo-${section}`).style.display = 'flex';
+  document.getElementById(`ceo-name-${section}`).focus();
+}
+
+function saveCeoTask(section) {
+  const name = document.getElementById(`ceo-name-${section}`).value.trim();
+  if (!name) return;
+  const detail = document.getElementById(`ceo-detail-${section}`).value.trim();
+  const cat = document.getElementById(`ceo-cat-${section}`).value;
+  const status = document.getElementById(`ceo-status-${section}`).value;
+  state.ceoBrief[section].push({id:uid(),name,detail,cat,status,refTab:''});
+  saveState(); renderCeo();
+}
+
+function deleteCeoTask(section, id) {
+  if (!confirm('Delete this task?')) return;
+  state.ceoBrief[section] = state.ceoBrief[section].filter(t=>t.id!==id);
+  saveState(); renderCeo();
+}
+
+function editCeoTask(section, id) {
+  const t = state.ceoBrief[section].find(x=>x.id===id);
+  if (!t) return;
+  const name = prompt('Task name:', t.name);
+  if (name===null) return;
+  const detail = prompt('Detail:', t.detail);
+  t.name = name || t.name;
+  t.detail = detail !== null ? detail : t.detail;
+  saveState(); renderCeo();
+}
+
+// ─── WEEK AT A GLANCE ──────────────────────────────────────
+const DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+const TIMES = ['6:00','7:00','8:30','9:00','10:00','11:00','12:00','1:00','2:00','3:00','3:30','4:00','5:00','6:00pm','7:00','8:00','9:00'];
+const TIME_KEYS = ['6:00','7:00','8:30','9:00','10:00','11:00','12:00','1:00','2:00','3:00','3:30','4:00','5:00','6:00pm','7:00','8:00','9:00'];
+
+function renderWeek() {
+  const el = document.getElementById('weekContent');
+  // Collect all time slots used
+  const usedTimes = new Set(TIME_KEYS);
+  Object.keys(state.weekAtGlance).forEach(k=>{
+    const t = k.split('-').slice(1).join('-');
+    usedTimes.add(t);
+  });
+  // Sort by position in TIME_KEYS first, then append any custom times at end
+  const sortedTimes = [...usedTimes].sort((a,b)=>{
+    const ai = TIME_KEYS.indexOf(a), bi = TIME_KEYS.indexOf(b);
+    if (ai !== -1 && bi !== -1) return ai - bi;
+    if (ai !== -1) return -1;
+    if (bi !== -1) return 1;
+    // Both custom: parse as 24h (custom times expected in 24h format)
+    const toMin = t => { const [h,m] = t.replace('pm','').split(':').map(Number); return h*60+(m||0); };
+    return toMin(a) - toMin(b);
+  });
+
+  let html = `
+  <div class="card">
+    <div class="card-header"><h3>Week of ${formatWeekLabel(currentDate)}</h3></div>
+    <div class="week-grid-wrap">
+    <table class="week-grid">
+    <thead><tr>
+      <th style="position:sticky;left:0;z-index:3;background:var(--navy)">Time</th>
+      ${DAYS.map(d=>`<th>${d}</th>`).join('')}
+    </tr></thead>
+    <tbody>`;
+
+  sortedTimes.forEach(time => {
+    // Check if any day has data for this time
+    const hasData = DAYS.some(d=>state.weekAtGlance[`${d}-${time}`]);
+    if (!hasData && !TIME_KEYS.includes(time)) return;
+    html += `<tr><td class="time-col">${time}</td>`;
+    DAYS.forEach(d => {
+      const key = `${d}-${time}`;
+      const val = state.weekAtGlance[key] || '';
+      html += `<td data-label="${d}">
+        <textarea class="day-note-input" rows="1"
+          onchange="saveWeekCell('${key}',this.value)"
+          oninput="autoResize(this)"
+          placeholder="+">${esc(val)}</textarea>
+      </td>`;
+    });
+    html += `</tr>`;
+  });
+
+  html += `</tbody></table></div>
+  <div class="add-row" style="margin-top:12px">
+    <input id="new-time-slot" placeholder="Add time (e.g. 11:30)" style="width:150px;border:1.5px solid var(--border);border-radius:8px;padding:7px 10px;font-size:14px">
+    <button class="btn btn-teal btn-sm" onclick="addTimeSlot()">+ Add Time Slot</button>
+  </div>
+  </div>`;
+  el.innerHTML = html;
+  el.querySelectorAll('.day-note-input').forEach(autoResize);
+}
+
+function saveWeekCell(key, val) {
+  if (val.trim()) state.weekAtGlance[key] = val.trim();
+  else delete state.weekAtGlance[key];
+  saveState();
+}
+
+function addTimeSlot() {
+  const val = document.getElementById('new-time-slot').value.trim();
+  if (!val) return;
+  // Add empty cells for all days
+  DAYS.forEach(d => {
+    const k = `${d}-${val}`;
+    if (!state.weekAtGlance[k]) state.weekAtGlance[k] = '';
+  });
+  saveState(); renderWeek();
+}
+
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = el.scrollHeight + 'px';
+}
+
+// ─── DAILY TASKS ───────────────────────────────────────────
+const DAILY_SECTIONS = [
+  {key:'planning', label:'📅 Planning Ahead', subtitle:'Holidays + Enrolments', collapsed:true},
+  {key:'household', label:'🏠 Household Tasks', subtitle:'Weekly home chores', collapsed:false},
+  {key:'kids', label:'👨‍👩‍👧‍👦 Kids & Family', subtitle:'Activities + appointments', collapsed:false},
+  {key:'cleaner', label:'🧹 Cleaner / Home Services', subtitle:'Laura & maintenance', collapsed:false},
+];
+
+function renderDaily() {
+  const el = document.getElementById('dailyContent');
+  let html = '';
+  DAILY_SECTIONS.forEach(sec => {
+    const tasks = state.dailyTasks[sec.key] || [];
+    const done = tasks.filter(t=>t.status==='done').length;
+    const collapsed = state[`daily_collapsed_${sec.key}`] !== undefined
+      ? state[`daily_collapsed_${sec.key}`] : sec.collapsed;
+    html += `
+    <div class="card">
+      <div class="card-header">
+        <h3>${sec.label} <span style="color:var(--muted);font-size:12px;font-weight:400"> — ${sec.subtitle}</span></h3>
+        <div style="display:flex;gap:8px;align-items:center">
+          <span style="font-size:13px;color:var(--muted)">${done}/${tasks.length}</span>
+          <button class="btn btn-teal btn-sm" onclick="addDailyTask('${sec.key}')">+ Add</button>
+          <button class="section-toggle" onclick="toggleDailySection('${sec.key}')">${collapsed?'▶':'▼'}</button>
+        </div>
+      </div>
+      <div class="section-body${collapsed?' collapsed':''}" id="daily-${sec.key}">`;
+
+    if (tasks.length === 0) {
+      html += `<p style="color:var(--muted);font-size:14px;padding:8px 0">No tasks yet.</p>`;
+    } else {
+      html += `<table class="task-table"><thead><tr>
+        <th>Task</th><th>Category</th><th>Status</th><th>Actions</th>
+      </tr></thead><tbody>`;
+      tasks.forEach(t => {
+        const isDone = t.status==='done';
+        html += `
+        <tr class="${isDone?'t-done':''}">
+          <td data-label="Task">
+            <span class="t-name">${esc(t.name)}</span>
+            <span class="t-detail">${esc(t.detail)}</span>
+          </td>
+          <td data-label="Category">${catBadge(t.cat)}</td>
+          <td data-label="Status">${statusPill(t.status, `cycleDailyTask('${sec.key}','${t.id}')`)}</td>
+          <td data-label="Actions">
+            <div class="task-actions">
+              <button class="act-btn" onclick="editDailyTask('${sec.key}','${t.id}')">✏️</button>
+              <button class="act-btn del" onclick="deleteDailyTask('${sec.key}','${t.id}')">🗑</button>
+            </div>
+          </td>
+        </tr>`;
+      });
+      html += `</tbody></table>`;
+    }
+    html += `
+      <div class="add-row" id="add-daily-${sec.key}" style="display:none;margin-top:10px">
+        <input class="inp-name" id="daily-name-${sec.key}" placeholder="Task name…" onkeydown="if(event.key==='Enter')saveDailyTask('${sec.key}')">
+        <input class="inp-detail" id="daily-detail-${sec.key}" placeholder="Detail…">
+        <select class="sel-cat" id="daily-cat-${sec.key}">${catOptions('ops')}</select>
+        <select class="sel-status" id="daily-status-${sec.key}">${statusOptions('not-started')}</select>
+        <button class="btn btn-teal btn-sm" onclick="saveDailyTask('${sec.key}')">Save</button>
+        <button class="btn btn-secondary btn-sm" onclick="cancelAdd('add-daily-${sec.key}')">Cancel</button>
+      </div>
+      </div></div>`;
+  });
+  el.innerHTML = html;
+}
+
+function toggleDailySection(key) {
+  const current = state[`daily_collapsed_${key}`];
+  const sec = DAILY_SECTIONS.find(s=>s.key===key);
+  const defaultCollapsed = sec ? sec.collapsed : false;
+  state[`daily_collapsed_${key}`] = current === undefined ? !defaultCollapsed : !current;
+  saveState(); renderDaily();
+}
+
+function cycleDailyTask(section, id) {
+  cycleStatus(state.dailyTasks[section], id);
+  saveState(); renderDaily();
+}
+
+function addDailyTask(section) {
+  document.getElementById(`add-daily-${section}`).style.display = 'flex';
+  document.getElementById(`daily-name-${section}`).focus();
+}
+
+function saveDailyTask(section) {
+  const name = document.getElementById(`daily-name-${section}`).value.trim();
+  if (!name) return;
+  const detail = document.getElementById(`daily-detail-${section}`).value.trim();
+  const cat = document.getElementById(`daily-cat-${section}`).value;
+  const status = document.getElementById(`daily-status-${section}`).value;
+  state.dailyTasks[section].push({id:uid(),name,detail,cat,status,refTab:''});
+  saveState(); renderDaily();
+}
+
+function deleteDailyTask(section, id) {
+  if (!confirm('Delete this task?')) return;
+  state.dailyTasks[section] = state.dailyTasks[section].filter(t=>t.id!==id);
+  saveState(); renderDaily();
+}
+
+function editDailyTask(section, id) {
+  const t = state.dailyTasks[section].find(x=>x.id===id);
+  if (!t) return;
+  const name = prompt('Task name:', t.name);
+  if (name===null) return;
+  const detail = prompt('Detail:', t.detail);
+  t.name = name || t.name;
+  t.detail = detail !== null ? detail : t.detail;
+  saveState(); renderDaily();
+}
+
+// ─── MARKETING & SALES ─────────────────────────────────────
+function renderMarketing() {
+  const el = document.getElementById('marketingContent');
+  const msections = [
+    {key:'launchWeek', label:'🚀 Launch Week Campaigns'},
+    {key:'content', label:'📝 Content'},
+    {key:'automation', label:'⚙️ Automation'},
+  ];
+  let html = '';
+  msections.forEach(sec => {
+    const items = state.marketing[sec.key] || [];
+    html += `
+    <div class="card">
+      <div class="card-header">
+        <h3>${sec.label}</h3>
+        <button class="btn btn-teal btn-sm" onclick="addMarketingTask('${sec.key}')">+ Add</button>
+      </div>
+      <table class="task-table"><thead><tr>
+        <th>Campaign</th><th>Channel</th><th>Date</th><th>Audience</th><th>Status</th><th>Actions</th>
+      </tr></thead><tbody>`;
+    items.forEach(t => {
+      html += `
+      <tr class="${t.status==='done'||t.status==='published'?'t-done':''}">
+        <td data-label="Campaign">
+          <span class="t-name">${esc(t.name)}</span>
+          <span class="t-detail">${esc(t.detail||'')}</span>
+        </td>
+        <td data-label="Channel"><span class="mkt-channel">${esc(t.channel||'')}</span></td>
+        <td data-label="Date"><span class="mkt-date">${esc(t.date||'')}</span></td>
+        <td data-label="Audience"><span class="mkt-audience">${esc(t.audience||'')}</span></td>
+        <td data-label="Status">${statusPill(t.status, `cycleMarketingTask('${sec.key}','${t.id}')`)}</td>
+        <td data-label="Actions">
+          <div class="task-actions">
+            <button class="act-btn del" onclick="deleteMarketingTask('${sec.key}','${t.id}')">🗑</button>
+          </div>
+        </td>
+      </tr>`;
+    });
+    html += `</tbody></table>
+      <div class="add-row" id="add-mkt-${sec.key}" style="display:none;margin-top:10px">
+        <input class="inp-name" id="mkt-name-${sec.key}" placeholder="Campaign name…">
+        <input class="inp-detail" id="mkt-detail-${sec.key}" placeholder="Detail…">
+        <input style="width:100px;border:1.5px solid var(--border);border-radius:8px;padding:7px 10px;font-size:13px" id="mkt-channel-${sec.key}" placeholder="Channel">
+        <input style="width:80px;border:1.5px solid var(--border);border-radius:8px;padding:7px 10px;font-size:13px" id="mkt-date-${sec.key}" placeholder="Date">
+        <input style="width:100px;border:1.5px solid var(--border);border-radius:8px;padding:7px 10px;font-size:13px" id="mkt-audience-${sec.key}" placeholder="Audience">
+        <select class="sel-status" id="mkt-status-${sec.key}">${statusOptions('not-started')}</select>
+        <button class="btn btn-teal btn-sm" onclick="saveMarketingTask('${sec.key}')">Save</button>
+        <button class="btn btn-secondary btn-sm" onclick="cancelAdd('add-mkt-${sec.key}')">Cancel</button>
+      </div>
+    </div>`;
+  });
+  el.innerHTML = html;
+}
+
+function cycleMarketingTask(section, id) {
+  cycleStatus(state.marketing[section], id);
+  saveState(); renderMarketing();
+}
+
+function addMarketingTask(section) {
+  document.getElementById(`add-mkt-${section}`).style.display = 'flex';
+  document.getElementById(`mkt-name-${section}`).focus();
+}
+
+function saveMarketingTask(section) {
+  const name = document.getElementById(`mkt-name-${section}`).value.trim();
+  if (!name) return;
+  const detail = document.getElementById(`mkt-detail-${section}`).value.trim();
+  const channel = document.getElementById(`mkt-channel-${section}`).value.trim();
+  const date = document.getElementById(`mkt-date-${section}`).value.trim();
+  const audience = document.getElementById(`mkt-audience-${section}`).value.trim();
+  const status = document.getElementById(`mkt-status-${section}`).value;
+  state.marketing[section].push({id:uid(),name,detail,channel,date,audience,status});
+  saveState(); renderMarketing();
+}
+
+function deleteMarketingTask(section, id) {
+  if (!confirm('Delete this item?')) return;
+  state.marketing[section] = state.marketing[section].filter(t=>t.id!==id);
+  saveState(); renderMarketing();
+}
+
+// ─── CONTENT TRACKER ───────────────────────────────────────
+function renderContent() {
+  const el = document.getElementById('contentContent');
+  const items = state.contentTracker || [];
+  let html = `
+  <div class="card">
+    <div class="card-header">
+      <h3>📋 Content Pipeline</h3>
+      <button class="btn btn-teal btn-sm" onclick="addContentItem()">+ Add</button>
+    </div>
+    <table class="task-table"><thead><tr>
+      <th>Title</th><th>Hook</th><th>Type</th><th>Platform</th><th>Audience</th><th>Status</th><th>Publish</th><th>Actions</th>
+    </tr></thead><tbody>`;
+
+  items.forEach(t => {
+    const isDone = t.status==='published';
+    html += `
+    <tr class="${isDone?'t-done':''}">
+      <td data-label="Title"><span class="t-name">${esc(t.title)}</span></td>
+      <td data-label="Hook"><span class="t-detail">${esc(t.hook||'')}</span></td>
+      <td data-label="Type"><span class="ct-type-badge">${esc(t.type||'')}</span></td>
+      <td data-label="Platform"><span class="ct-platform">${esc(t.platform||'')}</span></td>
+      <td data-label="Audience"><span class="mkt-audience">${esc(t.audience||'')}</span></td>
+      <td data-label="Status">${statusPill(t.status, `cycleContentItem('${t.id}')`)}</td>
+      <td data-label="Publish" style="white-space:nowrap;font-size:13px">${esc(t.date||'')}</td>
+      <td data-label="Actions">
+        <div class="task-actions">
+          <button class="act-btn del" onclick="deleteContentItem('${t.id}')">🗑</button>
+        </div>
+      </td>
+    </tr>`;
+  });
+
+  html += `</tbody></table>
+    <div class="add-row" id="add-content-item" style="display:none;margin-top:10px">
+      <input class="inp-name" id="ct-title" placeholder="Title…">
+      <input class="inp-detail" id="ct-hook" placeholder="Hook/angle…">
+      <input style="width:80px;border:1.5px solid var(--border);border-radius:8px;padding:7px 10px;font-size:13px" id="ct-type" placeholder="Type">
+      <input style="width:90px;border:1.5px solid var(--border);border-radius:8px;padding:7px 10px;font-size:13px" id="ct-platform" placeholder="Platform">
+      <input style="width:90px;border:1.5px solid var(--border);border-radius:8px;padding:7px 10px;font-size:13px" id="ct-audience" placeholder="Audience">
+      <select class="sel-status" id="ct-status">${statusOptions('not-started')}</select>
+      <input style="width:80px;border:1.5px solid var(--border);border-radius:8px;padding:7px 10px;font-size:13px" id="ct-date" placeholder="Date">
+      <button class="btn btn-teal btn-sm" onclick="saveContentItem()">Save</button>
+      <button class="btn btn-secondary btn-sm" onclick="cancelAdd('add-content-item')">Cancel</button>
+    </div>
+  </div>`;
+  el.innerHTML = html;
+}
+
+function cycleContentItem(id) {
+  cycleStatus(state.contentTracker, id);
+  saveState(); renderContent();
+}
+
+function addContentItem() {
+  document.getElementById('add-content-item').style.display = 'flex';
+  document.getElementById('ct-title').focus();
+}
+
+function saveContentItem() {
+  const title = document.getElementById('ct-title').value.trim();
+  if (!title) return;
+  state.contentTracker.push({
+    id:uid(),
+    title,
+    hook:document.getElementById('ct-hook').value.trim(),
+    type:document.getElementById('ct-type').value.trim(),
+    platform:document.getElementById('ct-platform').value.trim(),
+    audience:document.getElementById('ct-audience').value.trim(),
+    status:document.getElementById('ct-status').value,
+    date:document.getElementById('ct-date').value.trim(),
+  });
+  saveState(); renderContent();
+}
+
+function deleteContentItem(id) {
+  if (!confirm('Delete this content item?')) return;
+  state.contentTracker = state.contentTracker.filter(t=>t.id!==id);
+  saveState(); renderContent();
+}
+
+// ─── REVENUE TRACKER ───────────────────────────────────────
+function renderRevenue() {
+  const el = document.getElementById('revenueContent');
+  const kpis = state.revenue.kpis;
+  const products = state.revenue.products || [];
+  const totalRevenue = products.reduce((sum,p) => sum + (p.price*p.units), 0);
+  const pct = kpis.target > 0 ? Math.min(100, Math.round(totalRevenue/kpis.target*100)) : 0;
+
+  let html = `
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-label">Revenue Target</div>
+      <div class="kpi-value gold">$${kpis.target.toLocaleString()}</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Projected Revenue</div>
+      <div class="kpi-value ${totalRevenue>=kpis.target?'green':'red'}">$${totalRevenue.toLocaleString()}</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Business Float</div>
+      <div class="kpi-value">$${kpis.float.toLocaleString()}</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Mortgage (mo)</div>
+      <div class="kpi-value red">$${kpis.mortgage.toLocaleString()}</div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-header"><h3>Progress to Target</h3></div>
+    <div style="font-size:14px;color:var(--muted);margin-bottom:6px">${pct}% — $${totalRevenue.toLocaleString()} of $${kpis.target.toLocaleString()}</div>
+    <div class="progress-wrap"><div class="progress-bar" style="width:${pct}%"></div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h3>📦 Products</h3>
+      <button class="btn btn-teal btn-sm" onclick="addRevenueProduct()">+ Add</button>
+    </div>
+    <table class="task-table"><thead><tr>
+      <th>Product</th><th>Price</th><th>Units</th><th>Projected</th><th>Status</th><th>Launch</th><th>Note</th><th>Actions</th>
+    </tr></thead><tbody>`;
+
+  products.forEach(p => {
+    const proj = p.price * p.units;
+    html += `
+    <tr>
+      <td data-label="Product"><span class="t-name">${esc(p.name)}</span></td>
+      <td data-label="Price"><strong>$${p.price}</strong></td>
+      <td data-label="Units">${p.units}</td>
+      <td data-label="Projected" style="color:#059669;font-weight:700">$${proj.toLocaleString()}</td>
+      <td data-label="Status">${statusPill(p.status, `cycleRevenueProduct('${p.id}')`)}</td>
+      <td data-label="Launch" style="font-size:13px">${esc(p.launch||'')}</td>
+      <td data-label="Note" style="font-size:13px;color:var(--muted)">${esc(p.note||'')}</td>
+      <td data-label="Actions">
+        <div class="task-actions">
+          <button class="act-btn" onclick="editRevenueProduct('${p.id}')">✏️</button>
+          <button class="act-btn del" onclick="deleteRevenueProduct('${p.id}')">🗑</button>
+        </div>
+      </td>
+    </tr>`;
+  });
+
+  html += `</tbody></table>
+    <div class="add-row" id="add-rev-product" style="display:none;margin-top:10px">
+      <input class="inp-name" id="rev-pname" placeholder="Product name…">
+      <input type="number" id="rev-price" placeholder="Price $" style="width:80px;border:1.5px solid var(--border);border-radius:8px;padding:7px 10px;font-size:13px">
+      <input type="number" id="rev-units" placeholder="Units" style="width:70px;border:1.5px solid var(--border);border-radius:8px;padding:7px 10px;font-size:13px">
+      <select class="sel-status" id="rev-status">${statusOptions('planned')}</select>
+      <input id="rev-launch" placeholder="Launch date" style="width:100px;border:1.5px solid var(--border);border-radius:8px;padding:7px 10px;font-size:13px">
+      <input id="rev-note" placeholder="Note…" style="width:120px;border:1.5px solid var(--border);border-radius:8px;padding:7px 10px;font-size:13px">
+      <button class="btn btn-teal btn-sm" onclick="saveRevenueProduct()">Save</button>
+      <button class="btn btn-secondary btn-sm" onclick="cancelAdd('add-rev-product')">Cancel</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><h3>⚙️ KPI Settings</h3></div>
+    <div class="add-row">
+      <label style="font-size:13px;color:var(--muted)">Target $</label>
+      <input type="number" id="kpi-target" value="${kpis.target}" style="width:100px;border:1.5px solid var(--border);border-radius:8px;padding:7px 10px;font-size:13px">
+      <label style="font-size:13px;color:var(--muted)">Float $</label>
+      <input type="number" id="kpi-float" value="${kpis.float}" style="width:100px;border:1.5px solid var(--border);border-radius:8px;padding:7px 10px;font-size:13px">
+      <label style="font-size:13px;color:var(--muted)">Mortgage $</label>
+      <input type="number" id="kpi-mortgage" value="${kpis.mortgage}" style="width:100px;border:1.5px solid var(--border);border-radius:8px;padding:7px 10px;font-size:13px">
+      <button class="btn btn-teal btn-sm" onclick="saveKpis()">Update KPIs</button>
+    </div>
+  </div>`;
+
+  el.innerHTML = html;
+}
+
+function cycleRevenueProduct(id) {
+  const p = state.revenue.products.find(x=>x.id===id);
+  if (!p) return;
+  p.status = STATUS_CYCLE[p.status] || 'not-started';
+  saveState(); renderRevenue();
+}
+
+function addRevenueProduct() {
+  document.getElementById('add-rev-product').style.display = 'flex';
+  document.getElementById('rev-pname').focus();
+}
+
+function saveRevenueProduct() {
+  const name = document.getElementById('rev-pname').value.trim();
+  if (!name) return;
+  state.revenue.products.push({
+    id:uid(),
+    name,
+    price:parseFloat(document.getElementById('rev-price').value)||0,
+    units:parseInt(document.getElementById('rev-units').value)||0,
+    status:document.getElementById('rev-status').value,
+    launch:document.getElementById('rev-launch').value.trim(),
+    note:document.getElementById('rev-note').value.trim(),
+  });
+  saveState(); renderRevenue();
+}
+
+function editRevenueProduct(id) {
+  const p = state.revenue.products.find(x=>x.id===id);
+  if (!p) return;
+  const name = prompt('Product name:', p.name);
+  if (name===null) return;
+  const price = prompt('Price ($):', p.price);
+  const units = prompt('Units:', p.units);
+  p.name = name || p.name;
+  if (price!==null) p.price = parseFloat(price)||0;
+  if (units!==null) p.units = parseInt(units)||0;
+  saveState(); renderRevenue();
+}
+
+function deleteRevenueProduct(id) {
+  if (!confirm('Delete this product?')) return;
+  state.revenue.products = state.revenue.products.filter(p=>p.id!==id);
+  saveState(); renderRevenue();
+}
+
+function saveKpis() {
+  state.revenue.kpis.target = parseInt(document.getElementById('kpi-target').value)||0;
+  state.revenue.kpis.float = parseInt(document.getElementById('kpi-float').value)||0;
+  state.revenue.kpis.mortgage = parseInt(document.getElementById('kpi-mortgage').value)||0;
+  state.revenue.kpis.gap = state.revenue.kpis.target - state.revenue.kpis.float;
+  saveState(); renderRevenue();
+  showToast('KPIs updated ✓');
+}
+
+// ─── FINANCE ───────────────────────────────────────────────
+function renderFinance() {
+  const el = document.getElementById('financeContent');
+  const income = state.finance.income || [];
+  const expenses = state.finance.expenses || [];
+  const totalIn = income.reduce((s,i)=>s+i.amount,0);
+  const totalEx = expenses.reduce((s,e)=>s+e.amount,0);
+  const net = totalIn - totalEx;
+
+  let html = `
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-label">Total Income</div>
+      <div class="kpi-value green">$${totalIn.toLocaleString()}</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Total Expenses</div>
+      <div class="kpi-value red">$${totalEx.toLocaleString()}</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Net (Weekly)</div>
+      <div class="kpi-value ${net>=0?'green':'red'}">$${net.toLocaleString()}</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h3>💵 Income</h3>
+      <button class="btn btn-teal btn-sm" onclick="addFinanceItem('income')">+ Add</button>
+    </div>
+    <table class="fin-table"><thead><tr>
+      <th>Source</th><th>Note</th><th style="text-align:right">Amount</th><th>Actions</th>
+    </tr></thead><tbody>`;
+
+  income.forEach(i => {
+    html += `<tr>
+      <td data-label="Source"><strong>${esc(i.name)}</strong></td>
+      <td data-label="Note" style="color:var(--muted);font-size:13px">${esc(i.note||'')}</td>
+      <td data-label="Amount" class="amount fin-total-pos">$${i.amount.toLocaleString()}</td>
+      <td data-label="Actions">
+        <div class="task-actions" style="opacity:1">
+          <button class="act-btn" onclick="editFinanceItem('income','${i.id}')">✏️</button>
+          <button class="act-btn del" onclick="deleteFinanceItem('income','${i.id}')">🗑</button>
+        </div>
+      </td>
+    </tr>`;
+  });
+
+  html += `<tr class="total-row">
+    <td data-label="" colspan="2"><strong>Total Income</strong></td>
+    <td data-label="Total" class="amount fin-total-pos">$${totalIn.toLocaleString()}</td>
+    <td></td>
+  </tr></tbody></table>
+    <div class="add-row" id="add-fin-income" style="display:none;margin-top:10px">
+      <input class="inp-name" id="fin-income-name" placeholder="Source…">
+      <input id="fin-income-note" placeholder="Note…" style="width:120px;border:1.5px solid var(--border);border-radius:8px;padding:7px 10px;font-size:13px">
+      <input type="number" id="fin-income-amount" placeholder="Amount" style="width:90px;border:1.5px solid var(--border);border-radius:8px;padding:7px 10px;font-size:13px">
+      <button class="btn btn-teal btn-sm" onclick="saveFinanceItem('income')">Save</button>
+      <button class="btn btn-secondary btn-sm" onclick="cancelAdd('add-fin-income')">Cancel</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h3>💸 Expenses</h3>
+      <button class="btn btn-teal btn-sm" onclick="addFinanceItem('expenses')">+ Add</button>
+    </div>
+    <table class="fin-table"><thead><tr>
+      <th>Item</th><th>Note</th><th style="text-align:right">Amount</th><th>Actions</th>
+    </tr></thead><tbody>`;
+
+  expenses.forEach(e => {
+    html += `<tr>
+      <td data-label="Item"><strong>${esc(e.name)}</strong></td>
+      <td data-label="Note" style="color:var(--muted);font-size:13px">${esc(e.note||'')}</td>
+      <td data-label="Amount" class="amount fin-total-neg">$${e.amount.toLocaleString()}</td>
+      <td data-label="Actions">
+        <div class="task-actions" style="opacity:1">
+          <button class="act-btn" onclick="editFinanceItem('expenses','${e.id}')">✏️</button>
+          <button class="act-btn del" onclick="deleteFinanceItem('expenses','${e.id}')">🗑</button>
+        </div>
+      </td>
+    </tr>`;
+  });
+
+  html += `<tr class="total-row">
+    <td data-label="" colspan="2"><strong>Total Expenses</strong></td>
+    <td data-label="Total" class="amount fin-total-neg">$${totalEx.toLocaleString()}</td>
+    <td></td>
+  </tr></tbody></table>
+    <div class="add-row" id="add-fin-expenses" style="display:none;margin-top:10px">
+      <input class="inp-name" id="fin-expenses-name" placeholder="Expense…">
+      <input id="fin-expenses-note" placeholder="Note…" style="width:120px;border:1.5px solid var(--border);border-radius:8px;padding:7px 10px;font-size:13px">
+      <input type="number" id="fin-expenses-amount" placeholder="Amount" style="width:90px;border:1.5px solid var(--border);border-radius:8px;padding:7px 10px;font-size:13px">
+      <button class="btn btn-teal btn-sm" onclick="saveFinanceItem('expenses')">Save</button>
+      <button class="btn btn-secondary btn-sm" onclick="cancelAdd('add-fin-expenses')">Cancel</button>
+    </div>
+  </div>
+
+  <div class="card" style="background:${net>=0?'#D1FAE5':'#FEE2E2'}">
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <h3 style="font-size:16px">Weekly Net</h3>
+      <span style="font-size:28px;font-weight:700;font-family:'Playfair Display',serif;color:${net>=0?'#059669':'#DC2626'}">$${net.toLocaleString()}</span>
+    </div>
+  </div>`;
+
+  el.innerHTML = html;
+}
+
+function addFinanceItem(type) {
+  document.getElementById(`add-fin-${type}`).style.display = 'flex';
+  document.getElementById(`fin-${type}-name`).focus();
+}
+
+function saveFinanceItem(type) {
+  const name = document.getElementById(`fin-${type}-name`).value.trim();
+  if (!name) return;
+  const note = document.getElementById(`fin-${type}-note`).value.trim();
+  const amount = parseFloat(document.getElementById(`fin-${type}-amount`).value)||0;
+  state.finance[type].push({id:uid(),name,note,amount});
+  saveState(); renderFinance();
+}
+
+function editFinanceItem(type, id) {
+  const item = state.finance[type].find(x=>x.id===id);
+  if (!item) return;
+  const name = prompt('Name:', item.name);
+  if (name===null) return;
+  const amount = prompt('Amount ($):', item.amount);
+  item.name = name || item.name;
+  if (amount!==null) item.amount = parseFloat(amount)||0;
+  saveState(); renderFinance();
+}
+
+function deleteFinanceItem(type, id) {
+  if (!confirm('Delete this item?')) return;
+  state.finance[type] = state.finance[type].filter(x=>x.id!==id);
+  saveState(); renderFinance();
+}
+
+// ─── EOD MODAL ─────────────────────────────────────────────
+function openEodModal() {
+  const today = new Date();
+  const dateKey = today.toLocaleDateString('en-AU',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  const overlay = document.getElementById('eodOverlay');
+  const body = document.getElementById('eodBody');
+
+  const sections = [
+    {key:'urgent',label:'🚨 Urgent'},
+    {key:'business',label:'💼 Business'},
+    {key:'life',label:'🌿 Life'},
+  ];
+
+  let html = `<p style="font-size:14px;color:var(--muted);margin-bottom:16px">${dateKey}</p>`;
+  sections.forEach(sec => {
+    const tasks = state.priorityFocus[sec.key] || [];
+    if (tasks.length === 0) return;
+    html += `<div class="modal-section"><h4>${sec.label}</h4>`;
+    tasks.forEach(t => {
+      html += `<div class="eod-task">
+        <input type="checkbox" id="eod-${t.id}" ${t.status==='done'?'checked':''} onchange="eodToggle('${sec.key}','${t.id}',this.checked)">
+        <label class="eod-name" for="eod-${t.id}">
+          <span style="font-weight:600">${esc(t.name)}</span>
+          <span style="display:block;font-size:13px;color:var(--muted)">${esc(t.detail)}</span>
+        </label>
+        ${statusPill(t.status, `cyclePriorityEod('${sec.key}','${t.id}')`)}
+      </div>`;
+    });
+    html += `</div>`;
+  });
+
+  const existingNote = (state.dayNotes || {})[dateKey] || '';
+  html += `
+    <div class="modal-section">
+      <h4>📓 Notes from today</h4>
+      <textarea class="eod-notes-area" id="eodNotes" placeholder="Wins, blockers, ideas…">${esc(existingNote)}</textarea>
+    </div>`;
+
+  body.innerHTML = html;
+  overlay.classList.remove('hidden');
+}
+
+function eodToggle(section, id, checked) {
+  const t = state.priorityFocus[section].find(x=>x.id===id);
+  if (!t) return;
+  t.status = checked ? 'done' : 'not-started';
+  saveState();
+}
+
+function cyclePriorityEod(section, id) {
+  cyclePriority(section, id);
+  // Refresh modal
+  openEodModal();
+}
+
+function closeEodModal() {
+  document.getElementById('eodOverlay').classList.add('hidden');
+}
+
+function saveEod() {
+  const notes = document.getElementById('eodNotes').value.trim();
+  if (notes) {
+    if (!state.dayNotes) state.dayNotes = {};
+    const today = new Date();
+    const dateKey = today.toLocaleDateString('en-AU',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+    state.dayNotes[dateKey] = notes;
+  }
+  saveState();
+  closeEodModal();
+  if (activeTab === 1) renderCeo();
+  showToast('🌙 End of Day saved!');
+}
+
+// ─── ROLL TO NEXT WEEK ─────────────────────────────────────
+function rollNextWeek() {
+  if (!confirm('Roll all non-done tasks to next week? This will archive this week and start fresh for next week.')) return;
+  const cur = JSON.parse(JSON.stringify(state));
+  const nextDate = new Date(currentDate);
+  nextDate.setDate(currentDate.getDate() + 7);
+  const nextKey = getWeekKey(nextDate);
+
+  const nx = buildDefaultState();
+  // Overwrite priority with non-done tasks
+  ['urgent','business','life'].forEach(k=>{
+    nx.priorityFocus[k] = cur.priorityFocus[k].filter(t=>t.status!=='done');
+  });
+  // Overwrite daily with non-done tasks
+  ['planning','household','kids','cleaner'].forEach(k=>{
+    nx.dailyTasks[k] = cur.dailyTasks[k].filter(t=>t.status!=='done');
+  });
+  // CEO brief — reset to not-started
+  Object.keys(nx.ceoBrief).forEach(k=>{
+    nx.ceoBrief[k] = nx.ceoBrief[k].map(t=>({...t,status:'not-started'}));
+  });
+  // Carry over revenue + finance
+  nx.revenue = cur.revenue;
+  nx.finance = cur.finance;
+  nx.dayNotes = {};
+  nx.weekAtGlance = {};
+
+  localStorage.setItem(nextKey, JSON.stringify(nx));
+  currentDate = nextDate;
+  weekKey = nextKey;
+  state = nx;
+  updateHeader();
+  renderActive();
+  showToast('✅ Rolled to next week — non-done tasks carried over!');
+}
+
+// ─── EXPORT / IMPORT ───────────────────────────────────────
+function exportData() {
+  const allData = {};
+  for (let i=0; i<localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (key.startsWith('wcc_')) {
+      try { allData[key] = JSON.parse(localStorage.getItem(key)); } catch(e) {}
+    }
+  }
+  const json = JSON.stringify(allData, null, 2);
+  navigator.clipboard.writeText(json).then(()=>{
+    showToast('📤 Exported to clipboard!');
+  }).catch(()=>{
+    const blob = new Blob([json],{type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href=url; a.download='wcc-export.json'; a.click();
+    URL.revokeObjectURL(url);
+    showToast('📤 Exported as file!');
+  });
+}
+
+function importData() {
+  const json = prompt('Paste exported JSON here:');
+  if (!json) return;
+  try {
+    const data = JSON.parse(json);
+    Object.keys(data).forEach(key => {
+      if (key.startsWith('wcc_')) {
+        localStorage.setItem(key, JSON.stringify(data[key]));
+      }
+    });
+    loadState();
+    renderActive();
+    showToast('📥 Import successful!');
+  } catch(e) {
+    alert('Invalid JSON. Please check and try again.');
+  }
+}
+
+// ─── TOAST ─────────────────────────────────────────────────
+function showToast(msg, duration=3000) {
+  const container = document.getElementById('toastContainer');
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.textContent = msg;
+  container.appendChild(toast);
+  setTimeout(()=>{
+    toast.style.opacity='0';
+    toast.style.transition='opacity 0.3s';
+    setTimeout(()=>toast.remove(), 300);
+  }, duration);
+}
+
+// ─── FORM HELPERS ──────────────────────────────────────────
+function catOptions(selected='revenue') {
+  return Object.entries(CATS).map(([k,v])=>
+    `<option value="${k}" ${k===selected?'selected':''}>${v.label}</option>`
+  ).join('');
+}
+
+function statusOptions(selected='not-started') {
+  const opts = ['not-started','in-progress','done','planned','draft','ready','scheduled','published','live','todo'];
+  return opts.map(s=>`<option value="${s}" ${s===selected?'selected':''}>${statusLabel(s)}</option>`).join('');
+}
+
+function esc(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;');
+}
+
+// ─── INIT ──────────────────────────────────────────────────
+function init() {
+  weekKey = getWeekKey(currentDate);
+  loadState();
+  updateHeader();
+  fixTabBarTop();
+  window.addEventListener('resize', fixTabBarTop);
+  renderCeo();
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
