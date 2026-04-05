@@ -1,0 +1,1553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Hidy OS">
+<meta name="mobile-web-app-capable" content="yes">
+<title>Hidy Command Centre v4</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --navy:#1E2761;
+  --teal:#028090;
+  --teal-light:#02C39A;
+  --gold:#C9892A;
+  --red:#DC2626;
+  --purple:#7C3AED;
+  --green:#059669;
+  --amber:#D97706;
+  --sage:#4A7C59;
+  --rose:#C0392B;
+  --bg:#F0F4F8;
+  --card:#FFFFFF;
+  --border:#E2E8F0;
+  --text:#1E293B;
+  --muted:#64748B;
+  --safe-top:env(safe-area-inset-top,0px);
+  --safe-bot:env(safe-area-inset-bottom,0px);
+}
+html,body{height:100%;overflow:hidden;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',sans-serif;color:var(--text);-webkit-font-smoothing:antialiased}
+#app{display:flex;flex-direction:column;height:100vh;height:100dvh}
+.status-spacer{height:var(--safe-top);background:var(--navy)}
+.app-header{background:var(--navy);color:#fff;padding:12px 20px 14px;flex-shrink:0}
+.hdr-row{display:flex;align-items:center;justify-content:space-between}
+.hdr-title{font-size:20px;font-weight:700;letter-spacing:-0.3px}
+.hdr-sub{font-size:12px;opacity:0.65;margin-top:2px}
+.hdr-badge{background:rgba(255,255,255,0.15);border-radius:20px;padding:4px 12px;font-size:13px;font-weight:600}
+.hdr-week{font-size:12px;opacity:0.7;margin-top:6px;display:flex;align-items:center;justify-content:space-between}
+.week-nav{display:flex;align-items:center;gap:8px}
+.wk-arrow{background:rgba(255,255,255,0.2);border:none;color:#fff;padding:4px 10px;border-radius:6px;font-size:15px;cursor:pointer;-webkit-appearance:none}
+.wk-label{font-size:13px;font-weight:600;min-width:140px;text-align:center}
+.scroll-area{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding:16px 16px 8px}
+.tab-bar{background:#fff;border-top:1px solid var(--border);display:flex;flex-shrink:0;padding-bottom:var(--safe-bot)}
+.tab-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px 4px 6px;cursor:pointer;border:none;background:transparent;color:var(--muted);font-size:10px;font-weight:500;gap:3px;min-height:54px;transition:color 0.1s}
+.tab-item.active{color:var(--teal)}
+.tab-icon{font-size:22px;line-height:1}
+.tab-item.active .tab-icon{transform:scale(1.05)}
+.screen{display:none;animation:fadeIn 0.15s ease}
+.screen.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+.card{background:var(--card);border-radius:16px;padding:16px;margin-bottom:12px;box-shadow:0 1px 4px rgba(0,0,0,0.06)}
+.card-title{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.4px;color:var(--muted);margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.card-title span{font-size:15px}
+.kpi-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.kpi-card{background:var(--card);border-radius:14px;padding:14px 12px;box-shadow:0 1px 4px rgba(0,0,0,0.06);text-align:center}
+.kpi-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.3px;color:var(--muted);margin-bottom:4px}
+.kpi-value{font-size:22px;font-weight:800;color:var(--navy)}
+.kpi-value.green{color:var(--green)}
+.kpi-value.red{color:var(--red)}
+.kpi-value.gold{color:var(--gold)}
+.kpi-note{font-size:11px;color:var(--muted);margin-top:2px}
+.prog-wrap{background:#E2E8F0;border-radius:99px;height:6px;overflow:hidden;margin-top:8px}
+.prog-bar{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--teal),var(--teal-light));transition:width 0.5s}
+.priority-item{display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)}
+.priority-item:last-child{border-bottom:none;padding-bottom:0}
+.p-num{width:28px;height:28px;border-radius:50%;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0;margin-top:1px}
+.p-body{flex:1;min-width:0}
+.p-name{font-size:15px;font-weight:600;color:var(--text);line-height:1.3}
+.p-detail{font-size:13px;color:var(--muted);margin-top:3px;line-height:1.3}
+.p-tags{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}
+.badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-size:12px;font-weight:600;white-space:nowrap}
+.badge-revenue{background:#DCFCE7;color:#166534}
+.badge-ai{background:#F1F5F9;color:#334155}
+.badge-content{background:#FEF9C3;color:#854D0E}
+.badge-product{background:#F3E8FF;color:#6B21A8}
+.badge-personal{background:#DBEAFE;color:#1E40AF}
+.badge-ops{background:#FEE2E2;color:#991B1B}
+.badge-strategy{background:#CFFAFE;color:#0E7490}
+.badge-family{background:#FCE7F3;color:#9D174D}
+.badge-health{background:#D1FAE5;color:#065F46}
+.task-row{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--border)}
+.task-row:last-child{border-bottom:none;padding-bottom:0}
+.task-check{width:24px;height:24px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:all 0.15s;-webkit-appearance:none;background:#fff}
+.task-check.done{background:var(--green);border-color:var(--green);color:#fff}
+.task-check.done::after{content:'✓';font-size:13px;font-weight:700}
+.task-label{flex:1;font-size:15px;font-weight:500;line-height:1.3}
+.task-label.done{text-decoration:line-through;color:var(--muted)}
+.task-sub{font-size:13px;color:var(--muted);margin-top:2px}
+.sec-header{font-size:14px;font-weight:700;color:var(--navy);margin:16px 0 8px;padding-left:4px;display:flex;align-items:center;gap:6px}
+.sec-header::before{content:'';display:block;width:3px;height:16px;background:var(--teal);border-radius:2px}
+.sched-day-tabs{display:flex;gap:6px;margin-bottom:12px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
+.sched-day-tabs::-webkit-scrollbar{display:none}
+.day-pill{padding:7px 14px;border-radius:20px;font-size:13px;font-weight:600;white-space:nowrap;cursor:pointer;border:none;background:var(--border);color:var(--muted);-webkit-appearance:none;flex-shrink:0}
+.day-pill.active{background:var(--navy);color:#fff}
+.day-pill.today{border:2px solid var(--teal)}
+.day-pill.holiday{border:2px solid var(--rose,#C0392B)}
+.time-block{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
+.time-block:last-child{border-bottom:none}
+.time-col{font-size:12px;font-weight:700;color:var(--teal);width:54px;flex-shrink:0;padding-top:2px}
+.block-content{flex:1}
+.block-text{font-size:14px;font-weight:500;line-height:1.4}
+.block-pill{display:inline-block;padding:2px 8px;border-radius:12px;font-size:12px;font-weight:600;margin-top:4px}
+.pill-rev{background:#DCFCE7;color:#166534}
+.pill-ai{background:#E0F2FE;color:#0369A1}
+.pill-content{background:#FEF9C3;color:#854D0E}
+.pill-personal{background:#DBEAFE;color:#1E40AF}
+.pill-sprint{background:#EDE9FE;color:#5B21B6}
+.pill-ops{background:#FEE2E2;color:#991B1B}
+.pill-strategy{background:#CFFAFE;color:#0E7490}
+.pill-family{background:#FCE7F3;color:#9D174D}
+.phase-header{border-radius:10px;padding:10px 14px;margin-bottom:10px;font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:space-between;color:#fff}
+.phase-prog{font-size:12px;opacity:0.85;font-weight:500}
+.checklist-item{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
+.checklist-item:last-child{border-bottom:none;padding-bottom:0}
+.check-box{width:22px;height:22px;border-radius:6px;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;margin-top:1px;-webkit-appearance:none;background:#fff;transition:all 0.15s}
+.check-box.done{background:var(--green);border-color:var(--green);color:#fff;font-size:13px}
+.cl-body{flex:1}
+.cl-name{font-size:14px;font-weight:600;line-height:1.3}
+.cl-name.done{text-decoration:line-through;color:var(--muted);font-weight:400}
+.cl-meta{display:flex;gap:8px;margin-top:4px;align-items:center;flex-wrap:wrap}
+.cl-date{font-size:12px;color:var(--muted)}
+.rev-product{padding:12px 0;border-bottom:1px solid var(--border)}
+.rev-product:last-child{border-bottom:none;padding-bottom:0}
+.rp-row{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.rp-name{font-size:15px;font-weight:600;flex:1}
+.rp-price{font-size:15px;font-weight:700;color:var(--navy)}
+.rp-detail{font-size:13px;color:var(--muted);margin-top:3px}
+.rp-target{font-size:12px;color:var(--green);font-weight:600;margin-top:2px}
+.rp-coupon{font-size:11px;font-weight:700;color:var(--purple);background:#F3E8FF;padding:2px 7px;border-radius:8px;display:inline-block;margin-top:4px}
+.today-banner{background:linear-gradient(135deg,var(--navy),var(--teal));border-radius:16px;padding:16px;margin-bottom:12px;color:#fff}
+.tb-greeting{font-size:14px;opacity:0.8;margin-bottom:4px}
+.tb-date{font-size:22px;font-weight:800;margin-bottom:2px}
+.tb-focus{font-size:14px;opacity:0.9;margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.2)}
+.tb-focus-label{font-size:11px;opacity:0.7;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px}
+.alert{border-radius:12px;padding:12px 14px;margin-bottom:10px;font-size:14px;line-height:1.4}
+.alert-amber{background:#FFFBEB;border:1px solid #FDE68A;color:#92400E}
+.alert-red{background:#FEF2F2;border:1px solid #FECACA;color:#991B1B}
+.alert-green{background:#F0FDF4;border:1px solid #BBF7D0;color:#166534}
+.alert-blue{background:#EFF6FF;border:1px solid #BFDBFE;color:#1E40AF}
+.alert-purple{background:#F5F3FF;border:1px solid #DDD6FE;color:#5B21B6}
+.alert-title{font-weight:700;margin-bottom:3px}
+.section-block{margin-bottom:4px}
+.content-item{padding:12px 0;border-bottom:1px solid var(--border)}
+.content-item:last-child{border-bottom:none;padding-bottom:0}
+.ci-date{font-size:11px;font-weight:700;color:var(--teal);margin-bottom:4px}
+.ci-title{font-size:15px;font-weight:600;line-height:1.3;margin-bottom:4px}
+.ci-hook{font-size:13px;color:var(--muted);font-style:italic;margin-bottom:6px}
+.ci-meta{display:flex;gap:6px;flex-wrap:wrap}
+.bottom-pad{height:20px}
+#pwScreen{position:fixed;inset:0;z-index:9999;background:var(--navy);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 32px;gap:0}
+#pwScreen.hidden{display:none}
+.pw-logo{font-size:48px;margin-bottom:12px}
+.pw-title{font-size:24px;font-weight:800;color:#fff;margin-bottom:4px;letter-spacing:-0.3px}
+.pw-sub{font-size:14px;color:rgba(255,255,255,0.6);margin-bottom:36px;text-align:center}
+.pw-input{width:100%;max-width:320px;padding:16px 18px;border-radius:14px;border:2px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.1);color:#fff;font-size:18px;font-family:inherit;outline:none;text-align:center;letter-spacing:2px;-webkit-appearance:none;margin-bottom:12px;transition:border-color 0.2s}
+.pw-input::placeholder{letter-spacing:0;color:rgba(255,255,255,0.4);font-size:15px}
+.pw-input:focus{border-color:var(--teal-light)}
+.pw-btn{width:100%;max-width:320px;padding:16px;border-radius:14px;border:none;background:var(--teal-light);color:#fff;font-size:16px;font-weight:700;cursor:pointer;-webkit-appearance:none;transition:background 0.15s}
+.pw-btn:active{background:var(--teal)}
+.pw-error{font-size:13px;color:#FF6B6B;margin-top:8px;min-height:18px;font-weight:600}
+.sync-btn{background:rgba(255,255,255,0.18);border:1.5px solid rgba(255,255,255,0.35);color:#fff;border-radius:8px;padding:5px 11px;font-size:13px;font-weight:600;cursor:pointer;-webkit-appearance:none;white-space:nowrap}
+.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:500;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.2s}
+.modal-backdrop.open{opacity:1;pointer-events:all}
+.modal-sheet{background:#fff;border-radius:20px 20px 0 0;width:100%;max-width:600px;padding:20px 20px calc(20px + env(safe-area-inset-bottom,0px));transform:translateY(100%);transition:transform 0.3s cubic-bezier(0.34,1.2,0.64,1)}
+.modal-backdrop.open .modal-sheet{transform:translateY(0)}
+.modal-handle{width:40px;height:4px;background:#E2E8F0;border-radius:99px;margin:0 auto 16px}
+.modal-title{font-size:17px;font-weight:700;color:var(--navy);margin-bottom:4px}
+.modal-sub{font-size:13px;color:var(--muted);margin-bottom:16px;line-height:1.4}
+.modal-section{margin-bottom:16px}
+.modal-section-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.4px;color:var(--muted);margin-bottom:8px}
+.export-box{background:#F8FAFC;border:1.5px solid var(--border);border-radius:10px;padding:12px;font-size:12px;font-family:monospace;color:var(--text);word-break:break-all;max-height:100px;overflow-y:auto;line-height:1.5;cursor:pointer;-webkit-user-select:all;user-select:all}
+.import-area{width:100%;border:1.5px solid var(--border);border-radius:10px;padding:10px 12px;font-size:13px;font-family:monospace;min-height:70px;resize:none;outline:none;transition:border-color 0.15s;background:#fff;color:var(--text)}
+.import-area:focus{border-color:var(--teal)}
+.modal-row{display:flex;gap:8px;margin-top:8px}
+.modal-btn{flex:1;padding:12px;border-radius:10px;border:none;font-size:14px;font-weight:700;cursor:pointer;-webkit-appearance:none}
+.modal-btn-teal{background:var(--teal);color:#fff}
+.modal-btn-grey{background:#F1F5F9;color:var(--text)}
+.modal-btn-red{background:#FEE2E2;color:var(--red)}
+.copy-feedback{font-size:12px;color:var(--green);font-weight:600;margin-top:6px;min-height:16px}
+.kpi-edit{background:transparent;border:none;border-bottom:2px solid var(--teal-light);font-size:22px;font-weight:800;color:var(--red);width:100%;text-align:center;outline:none;font-family:inherit;padding:0;-webkit-appearance:none}
+.runway-meter{background:#1E2761;border-radius:14px;padding:14px;color:#fff;margin-bottom:12px}
+.rm-label{font-size:11px;opacity:0.7;text-transform:uppercase;letter-spacing:0.4px;margin-bottom:6px}
+.rm-value{font-size:28px;font-weight:800;margin-bottom:8px}
+.rm-bar-bg{background:rgba(255,255,255,0.2);border-radius:99px;height:8px}
+.rm-bar{height:8px;border-radius:99px;background:#02C39A}
+.rm-note{font-size:12px;opacity:0.7;margin-top:6px}
+/* Coupon tracker */
+.coupon-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)}
+.coupon-row:last-child{border-bottom:none}
+.coupon-name{font-size:14px;font-weight:600;flex:1}
+.coupon-code{font-size:11px;font-weight:700;color:var(--purple);background:#F3E8FF;padding:2px 8px;border-radius:6px;margin:0 8px}
+.coupon-count{font-size:13px;font-weight:700;color:var(--green)}
+.coupon-count.warn{color:var(--amber)}
+.coupon-count.urgent{color:var(--red)}
+/* Holiday card */
+.hol-item{padding:10px 0;border-bottom:1px solid var(--border)}
+.hol-item:last-child{border-bottom:none}
+.hol-date{font-size:11px;font-weight:700;color:var(--teal);margin-bottom:2px}
+.hol-title{font-size:15px;font-weight:600;line-height:1.3}
+.hol-sub{font-size:13px;color:var(--muted);margin-top:2px}
+/* PSA training */
+.psa-row{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)}
+.psa-row:last-child{border-bottom:none}
+.psa-label{font-size:13px;font-weight:700;color:var(--purple);width:90px;flex-shrink:0}
+.psa-val{font-size:13px;color:var(--text);flex:1}
+</style>
+</head>
+<body>
+
+<!-- PASSWORD SCREEN -->
+<div id="pwScreen">
+  <div class="pw-logo">⚡</div>
+  <div class="pw-title">Hidy OS</div>
+  <div class="pw-sub">EdFinHealth Command Centre<br>Enter your password to continue</div>
+  <input class="pw-input" id="pwInput" type="password" placeholder="Enter password" autocomplete="current-password" onkeydown="if(event.key==='Enter')checkPassword()">
+  <button class="pw-btn" onclick="checkPassword()">Unlock</button>
+  <div class="pw-error" id="pwError"></div>
+  <div style="font-size:12px;color:rgba(255,255,255,0.35);margin-top:24px;text-align:center;line-height:1.5">Tip: open the file in a text editor and search for APP_PASSWORD to change it</div>
+</div>
+
+<div id="app">
+  <div class="status-spacer"></div>
+  <header class="app-header">
+    <div class="hdr-row">
+      <div>
+        <div class="hdr-title">⚡ Hidy OS</div>
+        <div class="hdr-sub">EdFinHealth Command Centre</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <div class="hdr-badge" id="revBadge">A$0 / A$16.8K</div>
+        <button class="sync-btn" onclick="openSyncModal()">⇅ Sync</button>
+      </div>
+    </div>
+    <div class="hdr-week">
+      <div class="week-nav">
+        <button class="wk-arrow" onclick="changeWeek(-1)">‹</button>
+        <div class="wk-label" id="wkLabel">5–11 April 2026</div>
+        <button class="wk-arrow" onclick="changeWeek(1)">›</button>
+      </div>
+      <div id="countdownBadge" style="font-size:12px;font-weight:700;color:#FCA5A5"></div>
+    </div>
+  </header>
+
+  <div class="scroll-area" id="scrollArea">
+
+    <!-- ── TODAY ─────────────────────────────────────── -->
+    <div class="screen active" id="screen-today">
+      <div class="today-banner" id="todayBanner">
+        <div class="tb-greeting" id="todayGreeting">Good morning, Hidy</div>
+        <div class="tb-date" id="todayDate">Sunday 5 April 2026</div>
+        <div class="tb-focus">
+          <div class="tb-focus-label">Today's #1 focus</div>
+          <div id="todayFocus">Write 20 warm contacts list · Set up 5 WooCommerce coupons</div>
+        </div>
+      </div>
+
+      <div class="alert alert-red">
+        <div class="alert-title">🔴 Apr 30 Founding Member Deadline — 25 days</div>
+        20 free units per product. Once claimed, gone permanently. Revenue actions FIRST every day.
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span>🎯</span> Top 3 This Week</div>
+        <div class="priority-item">
+          <div class="p-num" style="background:var(--red)">1</div>
+          <div class="p-body">
+            <div class="p-name">Set up coupons + send 20 DMs</div>
+            <div class="p-detail">All 5 WooCommerce coupons live · 20 personalised LinkedIn DMs this week</div>
+            <div class="p-tags"><span class="badge badge-revenue">Revenue</span></div>
+          </div>
+        </div>
+        <div class="priority-item">
+          <div class="p-num" style="background:var(--teal)">2</div>
+          <div class="p-body">
+            <div class="p-name">Activate STAT + North Star email sequences</div>
+            <div class="p-detail">MailerLite nurture copy is written — just load and activate</div>
+            <div class="p-tags"><span class="badge badge-ai">AI Build</span></div>
+          </div>
+        </div>
+        <div class="priority-item">
+          <div class="p-num" style="background:var(--amber)">3</div>
+          <div class="p-body">
+            <div class="p-name">Post founding member countdown + 4 content posts</div>
+            <div class="p-detail">LinkedIn + Facebook · Build authority + warm pipeline fast</div>
+            <div class="p-tags"><span class="badge badge-content">Content</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span>⏰</span> Today's Schedule</div>
+        <div id="todayScheduleBlocks"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span>🚀</span> This Week's Launch Actions</div>
+        <div id="todayLaunchItems"></div>
+      </div>
+
+      <div class="kpi-row">
+        <div class="kpi-card" onclick="editKpi('revenue')">
+          <div class="kpi-label">Revenue Apr ✏️</div>
+          <div class="kpi-value red" id="kpiRevenue">A$0</div>
+          <div class="kpi-note">Target A$16,800</div>
+          <div class="prog-wrap"><div class="prog-bar" id="revProg" style="width:0%"></div></div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Runway</div>
+          <div class="kpi-value gold">A$34K</div>
+          <div class="kpi-note">~8 months</div>
+        </div>
+        <div class="kpi-card" onclick="editKpi('dms')">
+          <div class="kpi-label">DMs Sent ✏️</div>
+          <div class="kpi-value red" id="kpiDms">0</div>
+          <div class="kpi-note">Target: 20</div>
+        </div>
+        <div class="kpi-card" onclick="editKpi('calls')">
+          <div class="kpi-label">Discovery Calls ✏️</div>
+          <div class="kpi-value red" id="kpiCalls">0</div>
+          <div class="kpi-note">Target: 5</div>
+        </div>
+      </div>
+
+      <div class="bottom-pad"></div>
+    </div>
+
+    <!-- ── WEEK ───────────────────────────────────────── -->
+    <div class="screen" id="screen-week">
+      <div class="card">
+        <div class="card-title"><span>📅</span> Week at a Glance</div>
+        <div class="sched-day-tabs" id="dayTabs"></div>
+        <div id="daySchedule"></div>
+      </div>
+      <div class="bottom-pad"></div>
+    </div>
+
+    <!-- ── LAUNCH ─────────────────────────────────────── -->
+    <div class="screen" id="screen-launch">
+      <div class="alert alert-red">
+        <div class="alert-title">⏰ Apr 30 Founding Member Hard Close — 25 days</div>
+        3 phases · 26 days · Revenue actions daily. Once 20 free units per product are claimed, they are gone permanently.
+      </div>
+      <div class="alert alert-amber">
+        <div class="alert-title">🔴 Do these TODAY (in order)</div>
+        1. Set up all 5 WooCommerce coupons (100% discount, 20-use limit, expires 30 Apr)<br>
+        2. Write your 20 warm contacts list — 15 min<br>
+        3. Send first batch of 10 personalised DMs
+      </div>
+      <div id="launchContent"></div>
+      <div class="bottom-pad"></div>
+    </div>
+
+    <!-- ── REVENUE ────────────────────────────────────── -->
+    <div class="screen" id="screen-revenue">
+      <div class="runway-meter">
+        <div class="rm-label">Runway Remaining</div>
+        <div class="rm-value">A$34,000</div>
+        <div class="rm-bar-bg"><div class="rm-bar" style="width:85%"></div></div>
+        <div class="rm-note">~8 months at current burn · First sale bridges to sustainable income</div>
+      </div>
+
+      <div class="kpi-row">
+        <div class="kpi-card" onclick="editKpi('revenue')">
+          <div class="kpi-label">Apr Revenue ✏️</div>
+          <div class="kpi-value red" id="kpiRev2">A$0</div>
+          <div class="kpi-note">Target A$16,800</div>
+          <div class="prog-wrap"><div class="prog-bar" id="revProg2" style="width:0%"></div></div>
+        </div>
+        <div class="kpi-card" onclick="editKpi('calls')">
+          <div class="kpi-label">Discovery Calls ✏️</div>
+          <div class="kpi-value red" id="kpiCalls2">0</div>
+          <div class="kpi-note">Target: 5 this week</div>
+        </div>
+      </div>
+
+      <!-- Coupon tracker -->
+      <div class="card">
+        <div class="card-title"><span>🏷️</span> Founding Member Coupons — 20 Units Each</div>
+        <div id="couponTracker"></div>
+      </div>
+
+      <!-- FM Pricing -->
+      <div class="card">
+        <div class="card-title"><span>💰</span> Revenue Scenarios (Apr–Dec 2026)</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:4px">
+          <div style="background:#F0FDF4;border-radius:10px;padding:10px;text-align:center">
+            <div style="font-size:10px;font-weight:700;color:#065F46;text-transform:uppercase;margin-bottom:4px">Conservative</div>
+            <div style="font-size:16px;font-weight:800;color:#059669">$472K</div>
+          </div>
+          <div style="background:#ECFDF5;border-radius:10px;padding:10px;text-align:center;border:2px solid #6EE7B7">
+            <div style="font-size:10px;font-weight:700;color:#065F46;text-transform:uppercase;margin-bottom:4px">Realistic ✓</div>
+            <div style="font-size:16px;font-weight:800;color:#059669">$784K</div>
+          </div>
+          <div style="background:#EFF6FF;border-radius:10px;padding:10px;text-align:center">
+            <div style="font-size:10px;font-weight:700;color:#1E40AF;text-transform:uppercase;margin-bottom:4px">Stretch</div>
+            <div style="font-size:16px;font-weight:800;color:#1D4ED8">$1.18M</div>
+          </div>
+        </div>
+        <div style="font-size:12px;color:var(--muted);text-align:center;margin-top:6px">Apr realistic target: <strong style="color:var(--red)">A$16,800</strong> (EdTech $3,588 + Agency $13,212)</div>
+      </div>
+
+      <!-- Products -->
+      <div class="card">
+        <div class="card-title"><span>🟣</span> Products — April Priority</div>
+        <div class="rev-product">
+          <div class="rp-row"><div class="rp-name">STAT 14-Day Prep Program</div><div class="rp-price">A$67</div></div>
+          <div class="rp-detail">EdTech · 20 free units → nurture → $67 FM offer</div>
+          <div class="rp-coupon">LAUNCH-STAT</div>
+          <div class="rp-target">🔴 Priority 1 · Launch NOW</div>
+        </div>
+        <div class="rev-product">
+          <div class="rp-row"><div class="rp-name">North Star Clarity Kit</div><div class="rp-price">A$47</div></div>
+          <div class="rp-detail">EdTech · Quiz → free kit → $47 FM offer</div>
+          <div class="rp-coupon">LAUNCH-NORTHSTAR</div>
+          <div class="rp-target">🔴 Priority 1 · Launch NOW</div>
+        </div>
+        <div class="rev-product">
+          <div class="rp-row"><div class="rp-name">Entrepreneur Starter Guide</div><div class="rp-price">A$399 FM</div></div>
+          <div class="rp-detail">EdTech · $997 standard · 60% FM saving</div>
+          <div class="rp-coupon">LAUNCH-ENTREPRENEUR</div>
+          <div class="rp-target">🔴 Priority 1 · Launch NOW</div>
+        </div>
+        <div class="rev-product">
+          <div class="rp-row"><div class="rp-name">Business Blueprint Session</div><div class="rp-price">A$250</div></div>
+          <div class="rp-detail">EdTech · 20 free discovery sessions</div>
+          <div class="rp-coupon">LAUNCH-BLUEPRINT</div>
+          <div class="rp-target">🔴 Priority 1 · Launch NOW</div>
+        </div>
+        <div class="rev-product">
+          <div class="rp-row"><div class="rp-name">AI Business Audit + Roadmap</div><div class="rp-price">A$1,648</div></div>
+          <div class="rp-detail">Agency · Free 30-min discovery call → close at $1,648</div>
+          <div class="rp-coupon">LAUNCH-AIAUDIT</div>
+          <div class="rp-target">🔴 Priority 1 · Highest ticket · Close first</div>
+        </div>
+        <div class="rev-product">
+          <div class="rp-row"><div class="rp-name">AI Agent Build (standard)</div><div class="rp-price">A$4,500–6,500</div></div>
+          <div class="rp-detail">Agency · Month 2+</div>
+          <div class="rp-target">⚪ Month 2 · May 2026</div>
+        </div>
+        <div class="rev-product">
+          <div class="rp-row"><div class="rp-name">Agency Retainer</div><div class="rp-price">A$800–2,500/mo</div></div>
+          <div class="rp-detail">Agency recurring · Month 2+</div>
+          <div class="rp-target">⚪ Month 2 · May 2026</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span>📣</span> Marketing This Week</div>
+        <div class="task-row">
+          <div class="task-check" onclick="toggleCheck(this)"></div>
+          <div><div class="task-label">Send 20 personalised LinkedIn DMs with coupon codes</div><div class="task-sub">Revenue starts here — do this first</div></div>
+        </div>
+        <div class="task-row">
+          <div class="task-check" onclick="toggleCheck(this)"></div>
+          <div><div class="task-label">Post founding member countdown — LinkedIn + Facebook</div><div class="task-sub">4–5 posts this week</div></div>
+        </div>
+        <div class="task-row">
+          <div class="task-check" onclick="toggleCheck(this)"></div>
+          <div><div class="task-label">LinkedIn: STAT spotlight post</div><div class="task-sub">'3 things every STAT student gets wrong'</div></div>
+        </div>
+        <div class="task-row">
+          <div class="task-check" onclick="toggleCheck(this)"></div>
+          <div><div class="task-label">Activate STAT + North Star MailerLite sequences</div><div class="task-sub">Copy already written — just load and turn on</div></div>
+        </div>
+        <div class="task-row">
+          <div class="task-check" onclick="toggleCheck(this)"></div>
+          <div><div class="task-label">Post VA role on Upwork ($600/mo) + OnlineJobs.ph ($700/mo)</div><div class="task-sub">EdTech VA + Agency VA</div></div>
+        </div>
+      </div>
+      <div class="bottom-pad"></div>
+    </div>
+
+    <!-- ── LIFE ───────────────────────────────────────── -->
+    <div class="screen" id="screen-life">
+
+      <!-- Holidays overview -->
+      <div class="alert alert-blue">
+        <div class="alert-title">🗓 School Holidays: 3–20 April</div>
+        Back to school: Tue 21 April · Farm stay: Tue 14–Fri 17 (fully offline) · ANZAC Day: Sat 25 Apr (kids at Dad's)
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span>🌸</span> Ira Quality Time — Priority Dates</div>
+        <div class="hol-item">
+          <div class="hol-date">Thu 9 Apr</div>
+          <div class="hol-title">Perth Zoo / Perth Mint</div>
+          <div class="hol-sub">Work morning then Ira afternoon outing</div>
+        </div>
+        <div class="hol-item">
+          <div class="hol-date">Sat 11 Apr</div>
+          <div class="hol-title">French Market — just you two ❤️</div>
+          <div class="hol-sub">Jay still at Dad's · Power work day morning (Sat 11 = key work day)</div>
+        </div>
+        <div class="hol-item">
+          <div class="hol-date">Mon 13 Apr</div>
+          <div class="hol-title">Scitech or WA Museum (free under 15)</div>
+          <div class="hol-sub">Both kids · Last family day before farm stay</div>
+        </div>
+        <div class="hol-item">
+          <div class="hol-date">Mon 20 Apr</div>
+          <div class="hol-title">The Little Mermaid Musical ⭐</div>
+          <div class="hol-sub">Regal Theatre, Subiaco · Special mum-daughter date · Book via ticketek.com.au</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span>📌</span> Confirmed Bookings — Action Required</div>
+        <div class="task-row">
+          <div class="task-check" onclick="toggleCheck(this)"></div>
+          <div><div class="task-label">Ira — Clay Stitch Art Club ✅</div><div class="task-sub">Fri 10 Apr · 10am–2:30pm · Applecross · Jay home (arrange playdate!)</div></div>
+        </div>
+        <div class="task-row">
+          <div class="task-check" onclick="toggleCheck(this)"></div>
+          <div><div class="task-label">Adventure World — Book Online NOW</div><div class="task-sub">Season ends 19 Apr · ~$110–120 · Don't miss it</div></div>
+        </div>
+        <div class="task-row">
+          <div class="task-check" onclick="toggleCheck(this)"></div>
+          <div><div class="task-label">The Little Mermaid Musical — Book via ticketek.com.au</div><div class="task-sub">Regal Theatre, Subiaco · 4–19 Apr · ~$70–110</div></div>
+        </div>
+        <div class="task-row">
+          <div class="task-check" onclick="toggleCheck(this)"></div>
+          <div><div class="task-label">Confirm Ira piano — Sunday 19 Apr (Easter?)</div><div class="task-sub">10:30am · The One, Canning Vale</div></div>
+        </div>
+        <div class="task-row">
+          <div class="task-check" onclick="toggleCheck(this)"></div>
+          <div><div class="task-label">Arrange Jay playdate — Friday 10 April morning</div><div class="task-sub">Jay home, Ira at art class — you need that time</div></div>
+        </div>
+        <div class="task-row">
+          <div class="task-check" onclick="toggleCheck(this)"></div>
+          <div><div class="task-label">Clarify with Dad — Farm stay Tue 14 logistics</div><div class="task-sub">His usual 3pm pickup — does he collect from farm or city?</div></div>
+        </div>
+        <div class="task-row">
+          <div class="task-check" onclick="toggleCheck(this)"></div>
+          <div><div class="task-label">Set farm stay email auto-responder</div><div class="task-sub">Tue 14–Fri 17 fully offline — set before you leave</div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span>💊</span> PSA Immunisation Training</div>
+        <div class="alert alert-purple" style="margin-bottom:10px">
+          <div class="alert-title">⚠️ Book Perth workshop by 22 April — fills fast!</div>
+          Chase supervised placement host EARLY — don't leave this last minute.
+        </div>
+        <div class="psa-row"><div class="psa-label">Pathway</div><div class="psa-val">PSA online module + Perth workshop</div></div>
+        <div class="psa-row"><div class="psa-label">Study time</div><div class="psa-val">3–4 hrs/week · Wed & Sat 9–11am</div></div>
+        <div class="psa-row"><div class="psa-label">Calendar</div><div class="psa-val">Apple Calendar now → move to hidy@edfinhealth.co (Google) once connected</div></div>
+        <div class="psa-row"><div class="psa-label">Deadline</div><div class="psa-val">Book workshop by 22 Apr 2026</div></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span>⚖️</span> Legal Matter</div>
+        <div class="alert alert-amber">
+          <div class="alert-title">Parked — but don't ignore it</div>
+          Letter received from ex's lawyer. No court date yet. Breathing room exists. Revisit after farm stay.
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span>💚</span> Health & Wellbeing</div>
+        <div class="task-row">
+          <div class="task-check" onclick="toggleCheck(this)"></div>
+          <div><div class="task-label">Daily exercise 6:00–6:45am</div><div class="task-sub">Non-negotiable — even during holidays</div></div>
+        </div>
+        <div class="task-row">
+          <div class="task-check" onclick="toggleCheck(this)"></div>
+          <div><div class="task-label">PSA study — Wednesday 9–11am</div><div class="task-sub">Protect this block</div></div>
+        </div>
+        <div class="task-row">
+          <div class="task-check" onclick="toggleCheck(this)"></div>
+          <div><div class="task-label">Book annual GP checkup</div><div class="task-sub">Due April 2026</div></div>
+        </div>
+        <div class="task-row">
+          <div class="task-check" onclick="toggleCheck(this)"></div>
+          <div><div class="task-label">Sunday evening weekly reflection</div><div class="task-sub">10 min · Week prep + gratitude</div></div>
+        </div>
+        <div class="task-row">
+          <div class="task-check" onclick="toggleCheck(this)"></div>
+          <div><div class="task-label">Build in 2+ home days this holiday</div><div class="task-sub">Baking, drawing, backyard, movies — you and the kids need it</div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span>🏠</span> Household This Week</div>
+        <div class="task-row">
+          <div class="task-check" onclick="toggleCheck(this)"></div>
+          <div><div class="task-label">Morning tidy-up (15 min)</div><div class="task-sub">Mon–Fri · Daily</div></div>
+        </div>
+        <div class="task-row">
+          <div class="task-check" onclick="toggleCheck(this)"></div>
+          <div><div class="task-label">Laundry — wash + fold</div><div class="task-sub">Wednesday</div></div>
+        </div>
+        <div class="task-row">
+          <div class="task-check" onclick="toggleCheck(this)"></div>
+          <div><div class="task-label">Meal prep + grocery list</div><div class="task-sub">Monday — reduce weekday decision fatigue</div></div>
+        </div>
+        <div class="task-row">
+          <div class="task-check" onclick="toggleCheck(this)"></div>
+          <div><div class="task-label">Book cleaner (2–3 hrs) if not booked</div><div class="task-sub">Reduce mental load — worth every dollar</div></div>
+        </div>
+        <div class="task-row">
+          <div class="task-check" onclick="toggleCheck(this)"></div>
+          <div><div class="task-label">Book babysitter session for one work sprint</div><div class="task-sub">Frees up a full power session without guilt</div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span>💰</span> Finances — Personal</div>
+        <div class="alert alert-green">
+          <div class="alert-title">✅ Decided: Sort finances after launch — smart sequencing</div>
+          Personal tracker first → Xero when trading begins → Interview accountants/planners post-launch.
+        </div>
+        <div style="font-size:14px;font-weight:600;color:var(--navy);margin-top:8px">Holiday Budget</div>
+        <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)">
+          <span style="font-size:14px">Total estimated spend</span><span style="font-size:14px;font-weight:700;color:var(--sage)">~$550–680</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)">
+          <span style="font-size:14px">Adventure World</span><span style="font-size:14px;font-weight:700">~$110–120</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)">
+          <span style="font-size:14px">Little Mermaid Musical</span><span style="font-size:14px;font-weight:700">~$70–110</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:8px 0">
+          <span style="font-size:14px">Free wins 🌟</span><span style="font-size:13px;color:var(--green);font-weight:600">WA Museum · French Market · Kings Park · Perth Mint · Freo Street Arts</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span>🖊️</span> Content Calendar — April 2026</div>
+        <div class="content-item">
+          <div class="ci-date">Sun 5 Apr</div>
+          <div class="ci-title">AI Automation Spotlight</div>
+          <div class="ci-hook">'DM me AI for a free 15-min consult'</div>
+          <div class="ci-meta"><span class="badge badge-content">LinkedIn</span><span class="badge badge-content">Buffer Scheduled</span></div>
+        </div>
+        <div class="content-item">
+          <div class="ci-date">Mon 6 Apr</div>
+          <div class="ci-title">3 things every STAT student gets wrong</div>
+          <div class="ci-hook">CTA: edfinhealth.co/stat</div>
+          <div class="ci-meta"><span class="badge badge-content">LinkedIn Post</span></div>
+        </div>
+        <div class="content-item">
+          <div class="ci-date">Tue 7 Apr</div>
+          <div class="ci-title">Most people in transition aren't failing — they've never stopped to ask what they want</div>
+          <div class="ci-hook">CTA: Free quiz → North Star Kit</div>
+          <div class="ci-meta"><span class="badge badge-content">LinkedIn Post</span></div>
+        </div>
+        <div class="content-item">
+          <div class="ci-date">Wed 8 Apr</div>
+          <div class="ci-title">The one thing that separates people who build wealth from those who plateau</div>
+          <div class="ci-meta"><span class="badge badge-ops">Full List Email</span></div>
+        </div>
+        <div class="content-item">
+          <div class="ci-date">Sat 11 Apr</div>
+          <div class="ci-title">You trained hard in your field. Nobody trained you in business. But you're running one anyway.</div>
+          <div class="ci-hook">Free Entrepreneur Guide CTA</div>
+          <div class="ci-meta"><span class="badge badge-content">LinkedIn Post</span></div>
+        </div>
+        <div class="content-item">
+          <div class="ci-date">Thu 16 Apr</div>
+          <div class="ci-title">FM Countdown #1 — 'X of 20 free STAT units claimed'</div>
+          <div class="ci-meta"><span class="badge badge-content">LinkedIn</span><span class="badge badge-ops">Facebook</span></div>
+        </div>
+        <div class="content-item">
+          <div class="ci-date">Sun 19 Apr</div>
+          <div class="ci-title">'Here's what happened in our first 2 weeks' — results email</div>
+          <div class="ci-meta"><span class="badge badge-ops">Full List Email</span></div>
+        </div>
+        <div class="content-item">
+          <div class="ci-date">Mon 20 Apr</div>
+          <div class="ci-title">AI Automation deep-dive + FM countdown update</div>
+          <div class="ci-meta"><span class="badge badge-content">LinkedIn Post</span></div>
+        </div>
+        <div class="content-item">
+          <div class="ci-date">Wed 22 Apr</div>
+          <div class="ci-title">FM Countdown #2 — tightening urgency</div>
+          <div class="ci-meta"><span class="badge badge-content">LinkedIn</span><span class="badge badge-ops">Facebook</span></div>
+        </div>
+        <div class="content-item">
+          <div class="ci-date">Fri 24 Apr</div>
+          <div class="ci-title">Month 1 results post — real numbers only</div>
+          <div class="ci-meta"><span class="badge badge-content">LinkedIn Post</span></div>
+        </div>
+        <div class="content-item">
+          <div class="ci-date">Mon 27 Apr</div>
+          <div class="ci-title">Last-chance countdown — 3 days left</div>
+          <div class="ci-meta"><span class="badge badge-content">LinkedIn</span><span class="badge badge-ops">Email</span></div>
+        </div>
+        <div class="content-item">
+          <div class="ci-date">Thu 30 Apr</div>
+          <div class="ci-title">★ FINAL CLOSE — 4 emails today (7am / 12pm / 5pm / 8pm)</div>
+          <div class="ci-meta"><span class="badge badge-ops">CRITICAL</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span>⚖️</span> Legal & Admin</div>
+        <div class="task-row">
+          <div class="task-check" onclick="toggleCheck(this)"></div>
+          <div><div class="task-label">Review business registration / ABN records</div><div class="task-sub">Due 30 Apr · High priority</div></div>
+        </div>
+        <div class="task-row">
+          <div class="task-check" onclick="toggleCheck(this)"></div>
+          <div><div class="task-label">Check IP protection — EdFinHealth + STAT</div><div class="task-sub">Due May 2026</div></div>
+        </div>
+        <div class="task-row">
+          <div class="task-check" onclick="toggleCheck(this)"></div>
+          <div><div class="task-label">Calendar cleanup — 3 emails + 4 calendars</div><div class="task-sub">Parked — ~10 min to execute when ready</div></div>
+        </div>
+        <div class="task-row">
+          <div class="task-check" onclick="toggleCheck(this)"></div>
+          <div><div class="task-label">Review personal health insurance</div><div class="task-sub">Due May 2026</div></div>
+        </div>
+        <div class="task-row">
+          <div class="task-check" onclick="toggleCheck(this)"></div>
+          <div><div class="task-label">Update will + powers of attorney</div><div class="task-sub">Due Jun 2026</div></div>
+        </div>
+      </div>
+
+      <div class="bottom-pad"></div>
+    </div>
+
+  </div><!-- /scroll-area -->
+
+  <!-- SYNC MODAL -->
+  <div class="modal-backdrop" id="syncBackdrop" onclick="closeSyncModal(event)">
+    <div class="modal-sheet">
+      <div class="modal-handle"></div>
+      <div class="modal-title">⇅ Sync Progress</div>
+      <div class="modal-sub">Export your ticks + KPIs as a code, then import on another device.</div>
+      <div class="modal-section">
+        <div class="modal-section-title">📤 Export — copy this code</div>
+        <div class="export-box" id="exportBox" onclick="copyExport()">Tap to generate…</div>
+        <div class="copy-feedback" id="copyFeedback"></div>
+        <div class="modal-row"><button class="modal-btn modal-btn-teal" onclick="generateExport()">Generate Export Code</button></div>
+      </div>
+      <div class="modal-section">
+        <div class="modal-section-title">📥 Import — paste code from another device</div>
+        <textarea class="import-area" id="importArea" placeholder="Paste your export code here…"></textarea>
+        <div class="modal-row">
+          <button class="modal-btn modal-btn-grey" onclick="closeSyncModal()">Cancel</button>
+          <button class="modal-btn modal-btn-teal" onclick="doImport()">Apply Import</button>
+        </div>
+      </div>
+      <div class="modal-section">
+        <div class="modal-section-title">🗑️ Reset this week</div>
+        <div class="modal-row"><button class="modal-btn modal-btn-red" onclick="resetWeek()">Clear all ticks for this week</button></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOTTOM TAB BAR -->
+  <nav class="tab-bar">
+    <button class="tab-item active" onclick="switchTab('today',this)"><span class="tab-icon">🏠</span>Today</button>
+    <button class="tab-item" onclick="switchTab('week',this)"><span class="tab-icon">📅</span>Week</button>
+    <button class="tab-item" onclick="switchTab('launch',this)"><span class="tab-icon">🚀</span>Launch</button>
+    <button class="tab-item" onclick="switchTab('revenue',this)"><span class="tab-icon">💰</span>Revenue</button>
+    <button class="tab-item" onclick="switchTab('life',this)"><span class="tab-icon">🏡</span>Life</button>
+  </nav>
+</div>
+
+<script>
+// ─── PASSWORD ───────────────────────────────────────────────
+const APP_PASSWORD = 'HidyOS2026';
+const SESSION_KEY  = 'hidyOS_auth';
+
+function checkPassword() {
+  const val = document.getElementById('pwInput').value;
+  if (val === APP_PASSWORD) {
+    try { sessionStorage.setItem(SESSION_KEY, '1'); } catch(e){}
+    document.getElementById('pwScreen').classList.add('hidden');
+    document.getElementById('pwInput').value = '';
+    document.getElementById('pwError').textContent = '';
+    init();
+  } else {
+    const err = document.getElementById('pwError');
+    err.textContent = 'Incorrect password — try again';
+    document.getElementById('pwInput').value = '';
+    document.getElementById('pwInput').focus();
+    setTimeout(() => { err.textContent = ''; }, 3000);
+  }
+}
+
+function checkSession() {
+  try {
+    if (sessionStorage.getItem(SESSION_KEY) === '1') {
+      document.getElementById('pwScreen').classList.add('hidden');
+      init();
+    } else {
+      setTimeout(() => document.getElementById('pwInput').focus(), 300);
+    }
+  } catch(e) {
+    setTimeout(() => document.getElementById('pwInput').focus(), 300);
+  }
+}
+
+// ─── TAB SWITCHING ──────────────────────────────────────────
+function switchTab(name, btn) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab-item').forEach(b => b.classList.remove('active'));
+  document.getElementById('screen-' + name).classList.add('active');
+  if (btn) btn.classList.add('active');
+  document.getElementById('scrollArea').scrollTop = 0;
+}
+
+// ─── TOGGLE CHECKS ──────────────────────────────────────────
+function toggleCheck(el) {
+  el.classList.toggle('done');
+  const label = el.nextElementSibling?.querySelector('.task-label') ||
+                el.closest('.checklist-item')?.querySelector('.cl-name');
+  if (label) label.classList.toggle('done');
+  saveChecks();
+}
+function toggleCheckBox(el) {
+  el.classList.toggle('done');
+  if (el.classList.contains('done')) el.textContent = '✓'; else el.textContent = '';
+  const label = el.closest('.checklist-item')?.querySelector('.cl-name');
+  if (label) label.classList.toggle('done');
+  saveChecks();
+}
+
+// ─── PERSISTENCE ────────────────────────────────────────────
+function saveChecks() {
+  const checks = {};
+  document.querySelectorAll('.task-check, .check-box').forEach((el,i) => {
+    checks['c'+i] = el.classList.contains('done');
+  });
+  try { localStorage.setItem('hidyChecks_' + weekKey, JSON.stringify(checks)); } catch(e){}
+}
+function loadChecks() {
+  try {
+    const raw = localStorage.getItem('hidyChecks_' + weekKey);
+    if (!raw) return;
+    const checks = JSON.parse(raw);
+    document.querySelectorAll('.task-check, .check-box').forEach((el,i) => {
+      if (checks['c'+i]) {
+        el.classList.add('done');
+        if (el.classList.contains('check-box')) el.textContent = '✓';
+        const label = el.nextElementSibling?.querySelector('.task-label') ||
+                      el.closest('.checklist-item')?.querySelector('.cl-name');
+        if (label) label.classList.add('done');
+      }
+    });
+  } catch(e){}
+}
+
+// ─── WEEK DATA ───────────────────────────────────────────────
+let weekOffset = 0;
+
+const WEEK_DATA = {
+  0: {
+    label: '5–11 April 2026',
+    days: ['Sun 5','Mon 6','Tue 7','Wed 8','Thu 9','Fri 10','Sat 11'],
+    isHoliday: true,
+    schedule: {
+      'Sun 5': [
+        {time:'6:00am',text:'Morning Routine + Exercise',type:'personal'},
+        {time:'7:00am',text:'Write 20 warm contacts list (20 min)',type:'sprint'},
+        {time:'8:00am',text:'Set up all 5 WooCommerce coupons',type:'sprint'},
+        {time:'9:00am',text:'Schedule Mon–Fri posts in Buffer',type:'content'},
+        {time:'10:00am',text:'Send 3 targeted AI automation DMs',type:'rev'},
+        {time:'12:00pm',text:'Family / Kids',type:'personal'},
+        {time:'6:00pm',text:'Dinner / Family',type:'personal'},
+        {time:'7:00pm',text:'Week Prep + Planning',type:'strategy'},
+      ],
+      'Mon 6': [
+        {time:'6:00am',text:'Morning Routine + Exercise',type:'personal'},
+        {time:'7:00am',text:'ACTIVATE STAT MailerLite nurture sequence',type:'ai'},
+        {time:'8:00am',text:'Send DMs 1–10 from warm contacts list',type:'rev'},
+        {time:'9:00am',text:'Engage health sciences communities on LinkedIn',type:'content'},
+        {time:'10:00am',text:'Family / Kids Time',type:'family'},
+        {time:'12:00pm',text:'Email triage + CEO brief',type:'ops'},
+        {time:'1:00pm',text:'Send remaining 10 DMs (total 20/20)',type:'rev'},
+        {time:'5:00pm',text:'Family / Kids',type:'personal'},
+        {time:'7:00pm',text:'Content / LinkedIn post',type:'content'},
+      ],
+      'Tue 7': [
+        {time:'6:00am',text:'Morning Routine + Exercise',type:'personal'},
+        {time:'7:00am',text:'ACTIVATE North Star MailerLite sequence',type:'ai'},
+        {time:'8:00am',text:'Follow up DM responses from Mon',type:'rev'},
+        {time:'9:00am',text:'Book first discovery call if response received',type:'rev'},
+        {time:'3:00pm',text:'KIDS TO DAD\'S (3pm pickup)',type:'family'},
+        {time:'3:30pm',text:'Sprint: Deep Work — product build',type:'sprint'},
+        {time:'5:00pm',text:'Sprint: Revenue follow-up',type:'rev'},
+        {time:'7:00pm',text:'Content / LinkedIn',type:'content'},
+      ],
+      'Wed 8': [
+        {time:'6:00am',text:'Morning Routine + Exercise',type:'personal'},
+        {time:'7:00am',text:'★ POWER WORK DAY ★',type:'sprint'},
+        {time:'8:00am',text:'PSA Study — 9–11am',type:'personal'},
+        {time:'9:00am',text:'PSA Study continues',type:'personal'},
+        {time:'11:00am',text:'Follow up ALL DM conversations + book discovery calls',type:'rev'},
+        {time:'12:00pm',text:'Send full-list value email',type:'ops'},
+        {time:'1:00pm',text:'Sprint: Product Build / AI agent',type:'sprint'},
+        {time:'3:00pm',text:'KIDS HOME (3pm) — day continues',type:'family'},
+        {time:'5:00pm',text:'Family / Kids',type:'personal'},
+        {time:'7:00pm',text:'Check Stripe + analytics',type:'strategy'},
+      ],
+      'Thu 9': [
+        {time:'6:00am',text:'Morning Routine + Exercise',type:'personal'},
+        {time:'7:00am',text:'Post VA on Upwork ($600/mo EdTech)',type:'sprint'},
+        {time:'8:00am',text:'Post Agency VA on OnlineJobs.ph ($700/mo)',type:'sprint'},
+        {time:'9:00am',text:'5 targeted health/wellness DMs + offer free 15-min consult',type:'rev'},
+        {time:'10:00am',text:'Ira Quality Time — Perth Zoo or Perth Mint ❤️',type:'family'},
+        {time:'12:00pm',text:'Family lunch + afternoon',type:'family'},
+        {time:'3:00pm',text:'KIDS TO DAD\'S (3pm Fri pickup — check schedule)',type:'family'},
+        {time:'5:00pm',text:'CEO Brief + email triage',type:'ops'},
+      ],
+      'Fri 10': [
+        {time:'6:00am',text:'Morning Routine + Exercise',type:'personal'},
+        {time:'7:00am',text:'Jay playdate drop-off (arrange in advance!)',type:'family'},
+        {time:'9:00am',text:'Pull analytics: LI impressions, email opens, quiz completions',type:'strategy'},
+        {time:'10:00am',text:'IRA: Clay Stitch Art Club (10am–2:30pm, Applecross)',type:'family'},
+        {time:'10:00am',text:'Log any sales in Revenue Tracker',type:'ops'},
+        {time:'11:00am',text:'Shortlist VA applicants from Upwork',type:'ops'},
+        {time:'2:30pm',text:'Collect Ira from Art Club',type:'family'},
+        {time:'3:00pm',text:'KIDS TO DAD\'S (3pm pickup)',type:'family'},
+        {time:'3:30pm',text:'Brief admin / email close',type:'ops'},
+      ],
+      'Sat 11': [
+        {time:'6:00am',text:'Morning Routine + Exercise',type:'personal'},
+        {time:'7:00am',text:'★ POWER WORK DAY — Jay still at Dad\'s ★',type:'sprint'},
+        {time:'8:00am',text:'ACTIVATE Entrepreneur MailerLite sequence',type:'ai'},
+        {time:'9:00am',text:'Schedule next week\'s content in Buffer',type:'content'},
+        {time:'10:00am',text:'Write DM follow-up messages for pipeline',type:'rev'},
+        {time:'12:00pm',text:'French Market with Ira — just you two ❤️',type:'family'},
+        {time:'4:00pm',text:'IRA HOME (Sat 4pm)',type:'family'},
+        {time:'6:00pm',text:'Dinner / Family',type:'personal'},
+      ],
+    }
+  },
+  1: {
+    label: '12–18 April 2026',
+    days: ['Sun 12','Mon 13','Tue 14','Wed 15','Thu 16','Fri 17','Sat 18'],
+    isHoliday: true,
+    schedule: {
+      'Sun 12': [
+        {time:'6:00am',text:'Morning Routine + Exercise',type:'personal'},
+        {time:'7:00am',text:'Review Week 1 analytics — what worked?',type:'strategy'},
+        {time:'9:00am',text:'Plan Week 2 content calendar',type:'content'},
+        {time:'10:30am',text:'Ira piano — The One, Canning Vale',type:'family'},
+        {time:'12:00pm',text:'Family / Rest Day (no posts)',type:'personal'},
+        {time:'6:00pm',text:'Dinner / Family',type:'personal'},
+        {time:'7:30pm',text:'Week Prep + Planning',type:'strategy'},
+      ],
+      'Mon 13': [
+        {time:'6:00am',text:'Morning Routine + Exercise',type:'personal'},
+        {time:'7:00am',text:'Follow up all Week 1 DM conversations',type:'rev'},
+        {time:'8:00am',text:'North Star framework email (Day 3)',type:'ops'},
+        {time:'9:00am',text:'Push for discovery call bookings',type:'rev'},
+        {time:'10:00am',text:'Scitech or WA Museum — family day ❤️',type:'family'},
+        {time:'3:00pm',text:'KIDS TO DAD\'S (3pm pickup)',type:'family'},
+        {time:'4:00pm',text:'Analytics check + plan pre-farm stay tasks',type:'strategy'},
+      ],
+      'Tue 14': [
+        {time:'6:00am',text:'Morning Routine + Exercise',type:'personal'},
+        {time:'7:00am',text:'Draft SEO blog post #1 (STAT exam prep)',type:'content'},
+        {time:'9:00am',text:'CLOSE first AI Audit client if in pipeline ($1,648)',type:'rev'},
+        {time:'11:00am',text:'KIDS HOME (11am — Wed pickup switched for farm)',type:'family'},
+        {time:'12:00pm',text:'DEPART — Harvey Hills Farm Stay ✈️',type:'family'},
+        {time:'–',text:'FULLY OFFLINE Tue–Fri · Auto-responder ON',type:'personal'},
+      ],
+      'Wed 15': [
+        {time:'All day',text:'FARM STAY — Harvey Hills 🌿 OFFLINE',type:'family'},
+      ],
+      'Thu 16': [
+        {time:'All day',text:'FARM STAY — Harvey Hills 🌿 OFFLINE',type:'family'},
+      ],
+      'Fri 17': [
+        {time:'All day',text:'FARM STAY — Harvey Hills 🌿 OFFLINE',type:'family'},
+        {time:'4pm',text:'Return from farm stay',type:'family'},
+        {time:'–',text:'Kids to Dad\'s — Fri 3pm (farm / city — confirm with Dad)',type:'family'},
+      ],
+      'Sat 18': [
+        {time:'6:00am',text:'Morning Routine + Exercise',type:'personal'},
+        {time:'7:00am',text:'Onboard VA (if hired) — brief on scheduling + repurposing',type:'ops'},
+        {time:'9:00am',text:'Review Week 2 analytics',type:'strategy'},
+        {time:'10:00am',text:'Prepare SOPs: client close, email setup, onboarding',type:'ops'},
+        {time:'12:00pm',text:'Agency: send invoices for any closed deals',type:'rev'},
+        {time:'4:00pm',text:'IRA HOME (Sat 4pm)',type:'family'},
+        {time:'6:00pm',text:'Dinner / Family',type:'personal'},
+      ],
+    }
+  },
+  2: {
+    label: '19–25 April 2026',
+    days: ['Sun 19','Mon 20','Tue 21','Wed 22','Thu 23','Fri 24','Sat 25'],
+    isHoliday: true,
+    schedule: {
+      'Sun 19': [
+        {time:'6:00am',text:'Morning Routine + Exercise',type:'personal'},
+        {time:'7:00am',text:'200 email subscribers milestone check (MailerLite)',type:'strategy'},
+        {time:'8:00am',text:'Confirm all 4 nurture sequences running',type:'ai'},
+        {time:'9:00am',text:'Pipeline review: where are all 20 DMs at?',type:'rev'},
+        {time:'10:30am',text:'Ira piano — confirm if running (Easter period)',type:'family'},
+        {time:'12:00pm',text:'Family / Rest',type:'personal'},
+        {time:'7:00pm',text:'Send results email to full list',type:'ops'},
+      ],
+      'Mon 20': [
+        {time:'6:00am',text:'Morning Routine + Exercise',type:'personal'},
+        {time:'7:00am',text:'ACTIVATE AI Automation outbound sequence',type:'ai'},
+        {time:'8:00am',text:'Update FM counter publicly — real-time social proof',type:'rev'},
+        {time:'9:00am',text:'5 Agency DMs to targets',type:'rev'},
+        {time:'10:00am',text:'Family morning — Last holiday day!',type:'family'},
+        {time:'Evening',text:'THE LITTLE MERMAID MUSICAL ⭐ Regal Theatre, Subiaco',type:'family'},
+      ],
+      'Tue 21': [
+        {time:'6:00am',text:'Morning Routine + Exercise',type:'personal'},
+        {time:'7:00am',text:'★ BACK TO SCHOOL · POWER WORK DAY ★',type:'sprint'},
+        {time:'8:00am',text:'Publish SEO blog post #2 (AI automation + allied health)',type:'content'},
+        {time:'9:00am',text:'Send Entrepreneur Nurture Email 2',type:'ops'},
+        {time:'10:00am',text:'Follow up ALL open DM conversations',type:'rev'},
+        {time:'11:00am',text:'★ 2nd AI Audit close target — $1,648',type:'rev'},
+        {time:'3:00pm',text:'Kids home from school',type:'family'},
+        {time:'5:00pm',text:'Family / Kids',type:'personal'},
+      ],
+      'Wed 22': [
+        {time:'6:00am',text:'Morning Routine + Exercise',type:'personal'},
+        {time:'9:00am',text:'PSA Study — 9–11am',type:'personal'},
+        {time:'11:00am',text:'FM Countdown Post #2 — update unit numbers',type:'rev'},
+        {time:'12:00pm',text:'Revenue tracker check: on track for $3K?',type:'strategy'},
+        {time:'1:00pm',text:'Send 5 more Agency DMs',type:'rev'},
+        {time:'3:00pm',text:'Kids home',type:'family'},
+        {time:'5:00pm',text:'Family time',type:'personal'},
+      ],
+      'Thu 23': [
+        {time:'6:00am',text:'Morning Routine + Exercise',type:'personal'},
+        {time:'7:00am',text:'STAT Nurture Email 4 fires (Day 9 — direct offer $67)',type:'ops'},
+        {time:'8:00am',text:'Check STAT conversions',type:'strategy'},
+        {time:'9:00am',text:'Send 5 Agency DMs',type:'rev'},
+        {time:'10:00am',text:'Book 3rd discovery call for May pipeline',type:'rev'},
+        {time:'3:00pm',text:'Kids home',type:'family'},
+        {time:'5:00pm',text:'Family time',type:'personal'},
+      ],
+      'Fri 24': [
+        {time:'6:00am',text:'Morning Routine + Exercise',type:'personal'},
+        {time:'7:00am',text:'Publish SEO blog post #3 (North Star / career clarity)',type:'content'},
+        {time:'9:00am',text:'Document all sales to date formally',type:'ops'},
+        {time:'10:00am',text:'Agency pipeline review — who needs follow-up?',type:'rev'},
+        {time:'11:00am',text:'Write 3 SOPs: client close, email setup, onboarding',type:'ops'},
+        {time:'3:00pm',text:'KIDS TO DAD\'S (3pm pickup)',type:'family'},
+        {time:'3:30pm',text:'Post: Month 1 results — real metrics only',type:'content'},
+      ],
+      'Sat 25': [
+        {time:'–',text:'ANZAC DAY · Kids at Dad\'s per usual schedule',type:'family'},
+        {time:'6:00am',text:'Morning Routine + Exercise',type:'personal'},
+        {time:'9:00am',text:'PSA Study — 9–11am',type:'personal'},
+        {time:'11:00am',text:'FM Countdown Post #3 — 5 days to deadline',type:'rev'},
+        {time:'12:00pm',text:'Manually email anyone who opened FM emails but didn\'t click',type:'rev'},
+        {time:'2:00pm',text:'Send final batch of Agency DMs',type:'rev'},
+        {time:'4:00pm',text:'Consolidate pipeline: who is closest to closing?',type:'strategy'},
+      ],
+    }
+  },
+  3: {
+    label: '26 Apr – 2 May 2026',
+    days: ['Sun 26','Mon 27','Tue 28','Wed 29','Thu 30','Fri 1','Sat 2'],
+    isHoliday: false,
+    schedule: {
+      'Sun 26': [
+        {time:'6:00am',text:'Morning Routine + Exercise',type:'personal'},
+        {time:'7:00am',text:'Pre-close prep — plan Apr 28–30 email schedule',type:'strategy'},
+        {time:'8:00am',text:'Draft all Apr 30 email variants',type:'content'},
+        {time:'10:00am',text:'Schedule Apr 28–30 posts in advance',type:'content'},
+        {time:'12:00pm',text:'Confirm all Agency deals closed or in May pipeline',type:'rev'},
+        {time:'6:00pm',text:'Family / Rest',type:'personal'},
+      ],
+      'Mon 27': [
+        {time:'6:00am',text:'Morning Routine + Exercise',type:'personal'},
+        {time:'7:00am',text:'Update ALL counters publicly — real-time social proof',type:'rev'},
+        {time:'8:00am',text:'SEND: Last-chance email to full list (3 days left)',type:'ops'},
+        {time:'9:00am',text:'Final Agency DM follow-up — checking in messages',type:'rev'},
+        {time:'10:00am',text:'Log all April Agency revenue to date',type:'ops'},
+        {time:'3:00pm',text:'Kids home from school',type:'family'},
+        {time:'7:00pm',text:'Content: Personal video message to audience (Facebook)',type:'content'},
+      ],
+      'Tue 28': [
+        {time:'6:00am',text:'Morning Routine + Exercise',type:'personal'},
+        {time:'7:00am',text:'★ ALL-IN CLOSE DAY 1 ★',type:'sprint'},
+        {time:'8:00am',text:'Manually email top leads personally',type:'rev'},
+        {time:'9:00am',text:'CLOSE 2nd AI Audit if in pipeline ($1,648)',type:'rev'},
+        {time:'10:00am',text:'POST: Morning FM deadline reminder',type:'content'},
+        {time:'12:00pm',text:'SEND: 48 hours left email — full list',type:'ops'},
+        {time:'2:00pm',text:'POST: Afternoon — testimonial + social proof',type:'content'},
+        {time:'3:00pm',text:'Kids home',type:'family'},
+        {time:'7:00pm',text:'POST: Reels urgency clip — Facebook',type:'content'},
+      ],
+      'Wed 29': [
+        {time:'6:00am',text:'Morning Routine + Exercise',type:'personal'},
+        {time:'7:00am',text:'★ ALL-IN CLOSE DAY 2 ★',type:'sprint'},
+        {time:'8:00am',text:'SEND Email 1: Morning — 24 hours left',type:'ops'},
+        {time:'9:00am',text:'Update FM counter live — post any new claims',type:'rev'},
+        {time:'10:00am',text:'Personal follow-up to everyone who opened FM emails',type:'rev'},
+        {time:'12:00pm',text:'SEND Email 2: Afternoon — FAQ + objection handling',type:'ops'},
+        {time:'2:00pm',text:'Facebook Live Q&A — 15 min',type:'content'},
+        {time:'3:00pm',text:'Kids home',type:'family'},
+        {time:'7:00pm',text:'Close final Agency deals for April',type:'rev'},
+      ],
+      'Thu 30': [
+        {time:'6:00am',text:'Morning Routine + Exercise',type:'personal'},
+        {time:'7:00am',text:'★★ FINAL CLOSE DAY — APR 30 ★★',type:'sprint'},
+        {time:'7:00am',text:'Email 1: Morning reminder — FM closes today',type:'ops'},
+        {time:'10:00am',text:'POST: Today is the last day (morning)',type:'content'},
+        {time:'12:00pm',text:'Email 2: Testimonial + value reminder',type:'ops'},
+        {time:'2:00pm',text:'POST: Afternoon — testimonial/social proof',type:'content'},
+        {time:'5:00pm',text:'Email 3: Evening last chance',type:'ops'},
+        {time:'6:00pm',text:'POST: Final hour',type:'content'},
+        {time:'7:00pm',text:'Facebook Live for close',type:'content'},
+        {time:'8:00pm',text:'★ Email 4: FINAL HOUR — door closes tonight ★',type:'ops'},
+        {time:'9:00pm',text:'Document ALL April revenue + pull Stripe statements',type:'strategy'},
+      ],
+      'Fri 1': [
+        {time:'6:00am',text:'Morning Routine + Exercise',type:'personal'},
+        {time:'7:00am',text:'April review — actual vs target',type:'strategy'},
+        {time:'8:00am',text:'Document Month 1 totals formally',type:'strategy'},
+        {time:'9:00am',text:'Pull analytics: subscribers, opens, traffic, quiz completions',type:'strategy'},
+        {time:'10:00am',text:'Plan May (Month 2) priorities',type:'strategy'},
+        {time:'3:00pm',text:'Kids to Dad\'s (Fri 3pm)',type:'family'},
+      ],
+      'Sat 2': [
+        {time:'6:00am',text:'Morning Routine + Exercise',type:'personal'},
+        {time:'9:00am',text:'PSA Study — 9–11am',type:'personal'},
+        {time:'11:00am',text:'Write first 3 SOPs if not done',type:'ops'},
+        {time:'1:00pm',text:'Rest + Reflect — you did it! 🎉',type:'personal'},
+        {time:'4:00pm',text:'Ira home (Sat 4pm)',type:'family'},
+      ],
+    }
+  }
+};
+
+const TYPE_PILLS = {
+  rev:'pill-rev',ai:'pill-ai',content:'pill-content',personal:'pill-personal',
+  sprint:'pill-sprint',ops:'pill-ops',strategy:'pill-strategy',family:'pill-family'
+};
+const TYPE_LABELS = {
+  rev:'🔴 Revenue',ai:'⚫ AI Build',content:'🟡 Content',personal:'🔵 Personal',
+  sprint:'⚡ Sprint',ops:'🟢 Ops',strategy:'📊 Strategy',family:'🩷 Family'
+};
+
+// ─── LAUNCH DATA (from Excel) ─────────────────────────────────────────────
+const LAUNCH = [
+  { phase:'🔵 Phase 1: Brand Launch', dates:'5–14 Apr', colour:'#028090', items:[
+    {id:'l1',name:'Set up all 5 WooCommerce coupons (100% discount, 20-use limit, expires 30 Apr)',cat:'ops',due:'TODAY'},
+    {id:'l2',name:'Write 20 warm contacts list — names only, 15 min',cat:'revenue',due:'TODAY'},
+    {id:'l3',name:'Send 20 personalised LinkedIn DMs with coupon codes',cat:'revenue',due:'Mon–Tue 6–7 Apr'},
+    {id:'l4',name:'ACTIVATE STAT MailerLite nurture sequence',cat:'ai',due:'Mon 6 Apr'},
+    {id:'l5',name:'ACTIVATE North Star MailerLite sequence',cat:'ai',due:'Tue 7 Apr'},
+    {id:'l6',name:'LinkedIn: STAT spotlight — 3 things students get wrong',cat:'content',due:'Mon 6 Apr'},
+    {id:'l7',name:'LinkedIn: North Star / clarity content post',cat:'content',due:'Tue 7 Apr'},
+    {id:'l8',name:'Full list value email — Wed 8 Apr',cat:'ops',due:'Wed 8 Apr'},
+    {id:'l9',name:'Post VA on Upwork ($600/mo EdTech) + OnlineJobs.ph ($700/mo Agency)',cat:'ops',due:'Thu 9 Apr'},
+    {id:'l10',name:'5 targeted health/wellness DMs + offer free 15-min consult (TidyCal)',cat:'revenue',due:'Thu 9 Apr'},
+    {id:'l11',name:'Pull Week 1 analytics — log any sales',cat:'strategy',due:'Fri 10 Apr'},
+    {id:'l12',name:'ACTIVATE Entrepreneur MailerLite sequence',cat:'ai',due:'Sat 11 Apr'},
+    {id:'l13',name:'Draft SEO blog post #1 (STAT exam prep)',cat:'content',due:'Tue 14 Apr'},
+    {id:'l14',name:'CLOSE first AI Audit client if in pipeline ($1,648)',cat:'revenue',due:'Tue 14 Apr'},
+  ]},
+  { phase:'🟡 Phase 2: Agency Focus + FM Urgency', dates:'15–27 Apr', colour:'#D97706', items:[
+    {id:'l15',name:'★ AGENCY FOCUS BEGINS — 5 new Perth SME DMs (Wed)',cat:'revenue',due:'Wed 15 Apr'},
+    {id:'l16',name:'Publish SEO blog post #1 (STAT exam prep)',cat:'content',due:'Wed 15 Apr'},
+    {id:'l17',name:'FM Countdown Post #1 — X of 20 free STAT units claimed',cat:'content',due:'Thu 16 Apr'},
+    {id:'l18',name:'Shortlist + onboard VA (EdTech or Agency)',cat:'ops',due:'Sat 18 Apr'},
+    {id:'l19',name:'200 email subscribers check (MailerLite)',cat:'strategy',due:'Sun 19 Apr'},
+    {id:'l20',name:'Send results email — what happened in first 2 weeks',cat:'ops',due:'Sun 19 Apr'},
+    {id:'l21',name:'ACTIVATE AI Automation outbound DM sequence',cat:'ai',due:'Mon 20 Apr'},
+    {id:'l22',name:'Publish SEO blog post #2 (AI automation + allied health)',cat:'content',due:'Tue 21 Apr'},
+    {id:'l23',name:'★ 2nd AI Audit close target ($1,648)',cat:'revenue',due:'Tue 21 Apr'},
+    {id:'l24',name:'FM Countdown Post #2 — tightening urgency',cat:'content',due:'Wed 22 Apr'},
+    {id:'l25',name:'STAT Nurture Email 4 fires (Day 9 — direct offer $67)',cat:'ops',due:'Thu 23 Apr'},
+    {id:'l26',name:'Publish SEO blog post #3 (North Star / career clarity)',cat:'content',due:'Fri 24 Apr'},
+    {id:'l27',name:'FM Countdown Post #3 — 5 days to deadline',cat:'content',due:'Sat 25 Apr'},
+    {id:'l28',name:'Pre-close prep: draft all Apr 30 emails + schedule posts',cat:'strategy',due:'Sun 26 Apr'},
+    {id:'l29',name:'Send last-chance email to full list (3 days left)',cat:'ops',due:'Mon 27 Apr'},
+  ]},
+  { phase:'🔴 Phase 3: All-In Close', dates:'28–30 Apr', colour:'#DC2626', items:[
+    {id:'l30',name:'ALL-IN CLOSE Day 1: manually email top leads + morning/afternoon posts + 48-hr email',cat:'revenue',due:'Tue 28 Apr'},
+    {id:'l31',name:'ALL-IN CLOSE Day 2: update FM counter live + 2 emails + Facebook Live Q&A',cat:'revenue',due:'Wed 29 Apr'},
+    {id:'l32',name:'★ FINAL CLOSE: 4 emails today (7am / 12pm / 5pm / 8pm) + 3 posts + Facebook Live',cat:'revenue',due:'Thu 30 Apr'},
+    {id:'l33',name:'Document ALL April revenue + pull Stripe statements as PDF',cat:'ops',due:'Thu 30 Apr'},
+    {id:'l34',name:'April revenue review — actual vs target',cat:'strategy',due:'Fri 1 May'},
+    {id:'l35',name:'Write first 3 SOPs: client close, email setup, onboarding',cat:'ops',due:'Fri 1 May'},
+    {id:'l36',name:'Plan May (Month 2) priorities',cat:'strategy',due:'Sat 2 May'},
+  ]},
+];
+
+const CAT_BADGE = {
+  revenue:'badge-revenue',ai:'badge-ai',content:'badge-content',
+  product:'badge-product',personal:'badge-personal',ops:'badge-ops',strategy:'badge-strategy',
+  family:'badge-family',health:'badge-health'
+};
+
+// ─── COUPONS ─────────────────────────────────────────────────────────────
+const COUPONS = [
+  {name:'STAT 14-Day Prep',code:'LAUNCH-STAT',total:20},
+  {name:'North Star Clarity Kit',code:'LAUNCH-NORTHSTAR',total:20},
+  {name:'Entrepreneur Starter Guide',code:'LAUNCH-ENTREPRENEUR',total:20},
+  {name:'Business Blueprint Session',code:'LAUNCH-BLUEPRINT',total:20},
+  {name:'AI Audit + Roadmap',code:'LAUNCH-AIAUDIT',total:20},
+];
+
+// ─── TODAY DATA ───────────────────────────────────────────────────────────
+const TODAY_FOCUS_MAP = {
+  0: 'Write 20 warm contacts list · Set up 5 WooCommerce coupons · Schedule posts in Buffer', // Sun
+  1: 'ACTIVATE STAT email sequence · Send DMs 1–10 · LinkedIn STAT post',
+  2: 'ACTIVATE North Star sequence · Follow up DM responses · Book first discovery call',
+  3: 'Follow up ALL DM conversations · Book discovery calls · Send full-list value email',
+  4: 'Post VA on Upwork + OnlineJobs.ph · Send 5 targeted health/wellness DMs',
+  5: 'Pull analytics · Log sales · Review VA applications (Jay home + Ira art class)',
+  6: 'ACTIVATE Entrepreneur sequence · Schedule next week content · French Market with Ira ❤️',
+};
+
+// ─── WEEK KEY ─────────────────────────────────────────────────────────────
+let weekKey = 'hidyW_' + weekOffset;
+
+function changeWeek(dir) {
+  weekOffset += dir;
+  weekKey = 'hidyW_' + weekOffset;
+  renderWeekLabel();
+  renderWeekScreen();
+}
+
+function renderWeekLabel() {
+  const wd = WEEK_DATA[weekOffset];
+  const label = wd ? wd.label : (weekOffset > 0 ? `Week +${weekOffset}` : `Week ${weekOffset}`);
+  document.getElementById('wkLabel').textContent = label;
+}
+
+// ─── COUNTDOWN ───────────────────────────────────────────────────────────
+function renderCountdown() {
+  const deadline = new Date('2026-04-30T23:59:59+08:00');
+  const now = new Date();
+  const days = Math.ceil((deadline - now) / (1000*60*60*24));
+  const el = document.getElementById('countdownBadge');
+  if (days > 0) el.textContent = `⏰ ${days}d to FM close`;
+  else if (days === 0) el.textContent = '🔴 FM CLOSES TODAY';
+  else el.textContent = '✅ FM closed';
+}
+
+// ─── RENDER TODAY SCHEDULE ────────────────────────────────────────────────
+function renderTodaySchedule() {
+  const today = new Date();
+  const dow = today.getDay(); // 0=Sun
+  // Map to week 0 schedule by day of week
+  const wd = WEEK_DATA[0];
+  const dayKeys = Object.keys(wd.schedule);
+  const blocks = wd.schedule[dayKeys[dow]] || wd.schedule[dayKeys[0]] || [];
+  const cont = document.getElementById('todayScheduleBlocks');
+  cont.innerHTML = blocks.map(b => `
+    <div class="time-block">
+      <div class="time-col">${b.time}</div>
+      <div class="block-content">
+        <div class="block-text">${b.text}</div>
+        <span class="block-pill ${TYPE_PILLS[b.type]||'pill-ops'}">${TYPE_LABELS[b.type]||b.type}</span>
+      </div>
+    </div>
+  `).join('');
+  document.getElementById('todayFocus').textContent = TODAY_FOCUS_MAP[dow] || TODAY_FOCUS_MAP[0];
+}
+
+// ─── RENDER TODAY LAUNCH ITEMS ────────────────────────────────────────────
+function renderTodayLaunch() {
+  const items = LAUNCH[0].items.slice(0, 6);
+  const cont = document.getElementById('todayLaunchItems');
+  cont.innerHTML = items.map(item => `
+    <div class="checklist-item">
+      <div class="check-box" onclick="toggleCheckBox(this)"></div>
+      <div class="cl-body">
+        <div class="cl-name">${item.name}</div>
+        <div class="cl-meta">
+          <span class="badge ${CAT_BADGE[item.cat]||'badge-ai'}">${item.cat}</span>
+          <span class="cl-date">📅 ${item.due}</span>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ─── RENDER WEEK SCREEN ───────────────────────────────────────────────────
+let activeDay = 'Sun 5';
+
+function renderWeekScreen() {
+  const wd = WEEK_DATA[weekOffset] || WEEK_DATA[0];
+  const days = wd.days;
+  const today = new Date();
+  const todayDate = today.getDate();
+  const todayMon = today.getMonth(); // 3 = April
+
+  const tabs = document.getElementById('dayTabs');
+  tabs.innerHTML = days.map((d,i) => {
+    const dayNum = parseInt(d.split(' ')[1]);
+    const isApril = d.includes('Apr') || (weekOffset === 0);
+    const isToday = isApril && dayNum === todayDate && todayMon === 3;
+    const isHolday = wd.isHoliday;
+    return `<button class="day-pill${d===activeDay?' active':''}${isToday?' today':''}${isHolday?' holiday':''}" onclick="selectDay('${d}',this)">${d}</button>`;
+  }).join('');
+
+  if (!days.includes(activeDay)) activeDay = days[0];
+  renderDaySchedule(activeDay);
+}
+
+function selectDay(day, btn) {
+  activeDay = day;
+  document.querySelectorAll('.day-pill').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  renderDaySchedule(day);
+}
+
+function renderDaySchedule(day) {
+  const wd = WEEK_DATA[weekOffset] || WEEK_DATA[0];
+  const blocks = wd.schedule[day] || [];
+  const cont = document.getElementById('daySchedule');
+  if (!blocks.length) {
+    cont.innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted);font-size:14px">Protected day — rest & family 💙</div>';
+    return;
+  }
+  cont.innerHTML = blocks.map(b => `
+    <div class="time-block">
+      <div class="time-col">${b.time}</div>
+      <div class="block-content">
+        <div class="block-text">${b.text}</div>
+        <span class="block-pill ${TYPE_PILLS[b.type]||'pill-ops'}">${TYPE_LABELS[b.type]||b.type}</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ─── RENDER LAUNCH SCREEN ─────────────────────────────────────────────────
+function renderLaunch() {
+  const cont = document.getElementById('launchContent');
+  cont.innerHTML = LAUNCH.map((phase) => {
+    const items = phase.items.map(item => `
+      <div class="checklist-item">
+        <div class="check-box" onclick="toggleCheckBox(this)"></div>
+        <div class="cl-body">
+          <div class="cl-name">${item.name}</div>
+          <div class="cl-meta">
+            <span class="badge ${CAT_BADGE[item.cat]||'badge-ai'}">${item.cat}</span>
+            <span class="cl-date">📅 ${item.due}</span>
+          </div>
+        </div>
+      </div>
+    `).join('');
+    return `
+      <div style="margin-bottom:16px">
+        <div class="phase-header" style="background:${phase.colour}">
+          <div>${phase.phase}</div>
+          <div class="phase-prog">${phase.dates}</div>
+        </div>
+        <div class="card" style="margin-bottom:0;padding:12px 16px">${items}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+// ─── RENDER COUPON TRACKER ────────────────────────────────────────────────
+function renderCoupons() {
+  const cont = document.getElementById('couponTracker');
+  cont.innerHTML = COUPONS.map(c => {
+    const claimed = parseInt(localStorage.getItem('coupon_'+c.code) || '0');
+    const remaining = c.total - claimed;
+    const cls = remaining <= 5 ? 'urgent' : remaining <= 10 ? 'warn' : '';
+    const pct = Math.round((claimed/c.total)*100);
+    return `
+      <div class="coupon-row">
+        <div style="flex:1">
+          <div class="coupon-name">${c.name}</div>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:4px">
+            <span class="coupon-code">${c.code}</span>
+            <div style="flex:1;background:#E2E8F0;border-radius:99px;height:4px;overflow:hidden">
+              <div style="height:4px;border-radius:99px;background:var(--teal-light);width:${pct}%;transition:width 0.3s"></div>
+            </div>
+          </div>
+        </div>
+        <div style="text-align:right;margin-left:8px">
+          <div class="coupon-count ${cls}">${remaining} left</div>
+          <div style="font-size:11px;color:var(--muted)">${claimed}/${c.total} claimed</div>
+          <div style="display:flex;gap:4px;margin-top:4px">
+            <button onclick="adjustCoupon('${c.code}',-1)" style="background:#FEE2E2;border:none;border-radius:6px;padding:2px 8px;font-size:13px;font-weight:700;color:#991B1B;cursor:pointer">−</button>
+            <button onclick="adjustCoupon('${c.code}',1)" style="background:#DCFCE7;border:none;border-radius:6px;padding:2px 8px;font-size:13px;font-weight:700;color:#166534;cursor:pointer">+</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function adjustCoupon(code, delta) {
+  const current = parseInt(localStorage.getItem('coupon_'+code) || '0');
+  const coupon = COUPONS.find(c => c.code === code);
+  const newVal = Math.max(0, Math.min(coupon.total, current + delta));
+  try { localStorage.setItem('coupon_'+code, String(newVal)); } catch(e) {}
+  renderCoupons();
+}
+
+// ─── GREETING ─────────────────────────────────────────────────────────────
+function renderGreeting() {
+  const h = new Date().getHours();
+  let g = h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
+  document.getElementById('todayGreeting').textContent = `${g}, Hidy`;
+  document.getElementById('todayDate').textContent = new Date().toLocaleDateString('en-AU',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+}
+
+// ─── KPI STATE ────────────────────────────────────────────────────────────
+let kpis = { revenue: 0, calls: 0, dms: 0 };
+
+function loadKpis() {
+  try {
+    const raw = localStorage.getItem('hidyKpis_' + weekKey);
+    if (raw) kpis = { ...kpis, ...JSON.parse(raw) };
+  } catch(e) {}
+  renderKpis();
+}
+
+function saveKpis() {
+  try { localStorage.setItem('hidyKpis_' + weekKey, JSON.stringify(kpis)); } catch(e) {}
+}
+
+function renderKpis() {
+  const target = 16800;
+  const pct = Math.min(100, Math.round((kpis.revenue / target) * 100));
+  const revStr = 'A$' + kpis.revenue.toLocaleString();
+  ['kpiRevenue','kpiRev2'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.textContent = revStr; el.className = 'kpi-value ' + (kpis.revenue > 0 ? 'green' : 'red'); }
+  });
+  ['kpiCalls','kpiCalls2'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.textContent = String(kpis.calls); el.className = 'kpi-value ' + (kpis.calls >= 5 ? 'green' : 'red'); }
+  });
+  const dmsEl = document.getElementById('kpiDms');
+  if (dmsEl) { dmsEl.textContent = String(kpis.dms); dmsEl.className = 'kpi-value ' + (kpis.dms >= 20 ? 'green' : kpis.dms > 0 ? '' : 'red'); }
+  ['revProg','revProg2'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.width = pct + '%';
+  });
+  const badge = document.getElementById('revBadge');
+  if (badge) badge.textContent = revStr + ' / A$16.8K';
+}
+
+function editKpi(key) {
+  const labels = { revenue:'Revenue to date (A$)', calls:'Discovery calls booked', dms:'DMs sent' };
+  const val = prompt(labels[key] + ':', kpis[key]);
+  if (val === null) return;
+  const num = parseFloat(val.replace(/[^0-9.]/g,''));
+  if (!isNaN(num)) { kpis[key] = num; saveKpis(); renderKpis(); }
+}
+
+// ─── SYNC MODAL ───────────────────────────────────────────────────────────
+function openSyncModal() {
+  document.getElementById('syncBackdrop').classList.add('open');
+  document.getElementById('exportBox').textContent = 'Tap "Generate Export Code" to create your sync code';
+  document.getElementById('importArea').value = '';
+  document.getElementById('copyFeedback').textContent = '';
+}
+function closeSyncModal(e) {
+  if (!e || e.target === document.getElementById('syncBackdrop')) {
+    document.getElementById('syncBackdrop').classList.remove('open');
+  }
+}
+function generateExport() {
+  const checks = {};
+  document.querySelectorAll('.task-check, .check-box').forEach((el,i) => { checks['c'+i] = el.classList.contains('done'); });
+  const coupons = {};
+  COUPONS.forEach(c => { coupons[c.code] = localStorage.getItem('coupon_'+c.code) || '0'; });
+  const payload = { week: weekKey, ts: Date.now(), checks, kpis, coupons };
+  const encoded = btoa(JSON.stringify(payload));
+  document.getElementById('exportBox').textContent = encoded;
+  document.getElementById('copyFeedback').textContent = 'Tap the code above to select all, then copy';
+}
+function copyExport() {
+  const text = document.getElementById('exportBox').textContent;
+  if (!text || text.startsWith('Tap')) return;
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(() => {
+      document.getElementById('copyFeedback').textContent = '✅ Copied!';
+      setTimeout(() => { document.getElementById('copyFeedback').textContent = ''; }, 2500);
+    }).catch(() => selectExportText());
+  } else { selectExportText(); }
+}
+function selectExportText() {
+  const el = document.getElementById('exportBox');
+  const range = document.createRange();
+  range.selectNodeContents(el);
+  const sel = window.getSelection();
+  sel.removeAllRanges();
+  sel.addRange(range);
+  document.getElementById('copyFeedback').textContent = 'Selected — copy manually (Cmd+C / long-press)';
+}
+function doImport() {
+  const raw = document.getElementById('importArea').value.trim();
+  if (!raw) { alert('Please paste an export code first.'); return; }
+  try {
+    const payload = JSON.parse(atob(raw));
+    if (payload.kpis) { kpis = { ...kpis, ...payload.kpis }; saveKpis(); renderKpis(); }
+    if (payload.coupons) {
+      Object.entries(payload.coupons).forEach(([code, val]) => {
+        try { localStorage.setItem('coupon_'+code, val); } catch(e) {}
+      });
+      renderCoupons();
+    }
+    if (payload.checks) {
+      document.querySelectorAll('.task-check, .check-box').forEach((el,i) => {
+        const isDone = payload.checks['c'+i];
+        if (isDone && !el.classList.contains('done')) {
+          el.classList.add('done');
+          if (el.classList.contains('check-box')) el.textContent = '✓';
+          const label = el.nextElementSibling?.querySelector('.task-label') || el.closest('.checklist-item')?.querySelector('.cl-name');
+          if (label) label.classList.add('done');
+        } else if (!isDone && el.classList.contains('done')) {
+          el.classList.remove('done');
+          if (el.classList.contains('check-box')) el.textContent = '';
+          const label = el.nextElementSibling?.querySelector('.task-label') || el.closest('.checklist-item')?.querySelector('.cl-name');
+          if (label) label.classList.remove('done');
+        }
+      });
+      saveChecks();
+    }
+    closeSyncModal();
+    alert('✅ Import successful!');
+  } catch(e) { alert('Invalid code. Copy the full export code and try again.'); }
+}
+function resetWeek() {
+  if (!confirm('Clear all ticks for this week? Cannot be undone.')) return;
+  document.querySelectorAll('.task-check, .check-box').forEach(el => {
+    el.classList.remove('done');
+    if (el.classList.contains('check-box')) el.textContent = '';
+    const label = el.nextElementSibling?.querySelector('.task-label') || el.closest('.checklist-item')?.querySelector('.cl-name');
+    if (label) label.classList.remove('done');
+  });
+  kpis = { revenue: 0, calls: 0, dms: 0 };
+  try { localStorage.removeItem('hidyChecks_'+weekKey); localStorage.removeItem('hidyKpis_'+weekKey); } catch(e) {}
+  renderKpis();
+  closeSyncModal();
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────
+function init() {
+  renderGreeting();
+  renderCountdown();
+  renderWeekLabel();
+  renderTodaySchedule();
+  renderTodayLaunch();
+  renderWeekScreen();
+  renderLaunch();
+  renderCoupons();
+  setTimeout(() => { loadChecks(); loadKpis(); }, 100);
+}
+
+document.addEventListener('DOMContentLoaded', checkSession);
+</script>
+</body>
+</html>
